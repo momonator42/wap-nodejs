@@ -1,3 +1,8 @@
+/* src/styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
@@ -8,25 +13,12 @@ body {
     margin: 0;
 }
 
-.svg-container {
-    position: absolute;
-    top: calc(min(10vh, 2%));
-    left: 50%;
-    transform: translateX(-50%); 
-    background-color: white; 
-    padding: 10px; 
-    border-radius: 50%; 
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
 .container {
-    position: relative;
     text-align: center;
     background-color: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 50vh;
 }
 
 h1 {

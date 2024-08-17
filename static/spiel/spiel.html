@@ -1,55 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mühle Spielfeld</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $(".circle").click(function() {
-                $(this).css("background-color", "red");
-            });
-        });
-    </script>
-</head>
-<body>
-    <div class="background">
-        <div id="rand">
-            <div id="board">
-                <div class="line horizontal line1"></div>
-                <div class="line vertical line2"></div>
-                <div class="ring1">
-                    <div class="circle top-left"></div>
-                    <div class="circle top-right"></div>
-                    <div class="circle top-center"></div>
-                    <div class="circle bottom-left"></div>
-                    <div class="circle bottom-right"></div>
-                    <div class="circle bottom-center"></div>
-                    <div class="circle center-left"></div>
-                    <div class="circle center-right"></div>
-                    <div class="ring2">
-                        <div class="circle top-left"></div>
-                        <div class="circle top-right"></div>
-                        <div class="circle top-center"></div>
-                        <div class="circle bottom-left"></div>
-                        <div class="circle bottom-right"></div>
-                        <div class="circle bottom-center"></div>
-                        <div class="circle center-left"></div>
-                        <div class="circle center-right"></div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mühle Spielfeld</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body>
+        <div class="container-fluid p-0 m-0 h-100">
+            <div class="row g-0 w-100">
+                <div class="bar col-12 col-lg-2 col-xl-1">
+                    <div class="row g-4">
+                        <div class="col-4 col-lg-12">
+                            <a class="btn btn-secondary w-100" href="../index.html" style="font-size: smaller;">&#8592; Zurück</a>
+                        </div>
+                        <div class="col-4 col-lg-12">
+                            <a id="new-game-btn" class="btn btn-primary w-100" href="#" style="font-size: smaller;">Neues Spiel</a>
+                        </div>
+                        <div class="col-4 col-lg-12">
+                            <a class="btn btn-success w-100" href="#" style="font-size: smaller;">Mehrspieler</a>
+                        </div>
                     </div>
                 </div>
-                <div class="circle top-left"></div>
-                <div class="circle top-right"></div>
-                <div class="circle top-center"></div>
-                <div class="circle bottom-left"></div>
-                <div class="circle bottom-right"></div>
-                <div class="circle bottom-center"></div>
-                <div class="circle center-left"></div>
-                <div class="circle center-right"></div>
+                <div class="col-12 col-lg-10 col-xl-11 align-items-center d-flex justify-content-center">
+                    <div class="background">
+                        <div id="rand">
+                            <div id="board">
+                                <div class="line horizontal line1"></div>
+                                <div class="line vertical line2"></div>
+                                <div class="ring1">
+                                    <div class="circle top-left" data-position="0-0-0"></div>
+                                    <div class="circle top-right" data-position="0-0-2"></div>
+                                    <div class="circle top-center" data-position="0-0-1"></div>
+                                    <div class="circle bottom-left" data-position="0-2-0"></div>
+                                    <div class="circle bottom-right" data-position="0-2-2"></div>
+                                    <div class="circle bottom-center" data-position="0-2-1"></div>
+                                    <div class="circle center-left" data-position="0-1-0"></div>
+                                    <div class="circle center-right" data-position="0-1-2"></div>
+                                    <div class="ring2">
+                                        <div class="circle top-left" data-position="1-0-0"></div>
+                                        <div class="circle top-right" data-position="1-0-2"></div>
+                                        <div class="circle top-center" data-position="1-0-1"></div>
+                                        <div class="circle bottom-left" data-position="1-2-0"></div>
+                                        <div class="circle bottom-right" data-position="1-2-2"></div>
+                                        <div class="circle bottom-center" data-position="1-2-1"></div>
+                                        <div class="circle center-left" data-position="1-1-0"></div>
+                                        <div class="circle center-right" data-position="1-1-2"></div>
+                                    </div>
+                                </div>
+                                <div class="circle top-left" data-position="2-0-0"></div>
+                                <div class="circle top-right" data-position="2-0-2"></div>
+                                <div class="circle top-center" data-position="2-0-1"></div>
+                                <div class="circle bottom-left" data-position="2-2-0"></div>
+                                <div class="circle bottom-right" data-position="2-2-2"></div>
+                                <div class="circle bottom-center" data-position="2-2-1"></div>
+                                <div class="circle center-left" data-position="2-1-0"></div>
+                                <div class="circle center-right" data-position="2-1-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</body>
+        <script src="spiel_logik.js"></script>
+    </body>
 </html>
