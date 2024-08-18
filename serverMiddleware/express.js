@@ -10,15 +10,12 @@ app.use(express.urlencoded({ extended: true }));
 
 const filePath = path.join(__dirname, "../init-gameState.json");
 
-const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-
 let currentState = JSON.parse(fs.readFileSync(filePath, "utf-8"));
 
 let storedMove = null;
 
-
 app.get("/api", (req, res) => {
-    res.json(data);
+    res.json(currentState);
 });
 
 app.post("/api/play", async (req, res) => {
