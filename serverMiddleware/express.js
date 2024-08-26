@@ -56,7 +56,7 @@ app.post("/api/play", async (req, res) => {
     } catch (error) {
         console.error("Error forwarding the request:", error);
         storedMove = null;
-        res.status(500).json({ error: "Error forwarding the request" });
+        res.status(500).json({ error: "Der Zug konnte nicht ausgeführt werden!" });
     }
 });
 

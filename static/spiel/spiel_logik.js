@@ -38,7 +38,7 @@ $(document).ready(function() {
                 console.log("Board update not required.");
             } 
         }).fail(function(err) {
-            console.error("Error:", err);
+            alert(err.responseJSON.error || "Ein Fehler ist aufgetreten.");
         });
     });
 
@@ -49,6 +49,7 @@ $(document).ready(function() {
             updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
         }).fail(function(err) {
             console.error("Error starting new game:", err);
+            alert("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
         });
     });
 });
