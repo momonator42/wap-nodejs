@@ -16,10 +16,10 @@ body {
 
 .background {
     position: relative;
-    width: 90vw;
-    height: 90vw;
-    max-width: 95vh;
-    max-height: 95vh;
+    width: 95vw;
+    height: 95vw;
+    max-width: 100vh;
+    max-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -159,4 +159,45 @@ body {
     bottom: 0;
     left: 50%;
     transform: translate(-50%, 50%);
+}
+
+.text-center h2 {
+    position: absolute;
+    color: black;
+    font-weight: bold;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+}
+
+@media (max-width: 576px) {
+    /* Für kleine Bildschirme (wie Mobilgeräte) */
+    .text-center h2 {
+        top: 4%;
+        font-size: 11px;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+    /* Für mittelgroße Bildschirme (wie kleine Tablets) */
+    .text-center h2 {
+        top: 3%;
+        font-size: 22px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 992px) {
+    /* Für größere Tablets und kleine Desktops */
+    .text-center h2 {
+        top: 4%;
+        font-size: 26px;
+    }
+}
+
+@media (min-width: 993px) {
+    /* Für große Bildschirme (wie Desktop-Monitore) */
+    .text-center h2 {
+        top: 5%;
+        font-size: 32px;
+    }
 }

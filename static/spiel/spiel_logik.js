@@ -1,5 +1,9 @@
 $(document).ready(function() {
-    function updateBoard(fields) {
+    function updateStatus(currentPlayer, gameState) {
+        $("h2").text(`Current Player: ${currentPlayer.name} - State: ${gameState}`);
+    }
+
+    function updateBoard(fields, currentPlayer, gameState) {
         $(".circle").each(function() {
             const position = $(this).data('position').split('-');
             const ring = parseInt(position[0]);
@@ -14,6 +18,8 @@ $(document).ready(function() {
                 $(this).css("background-color", "black");
             }
         });
+
+        updateStatus(currentPlayer, gameState)
     }
 
     $(".circle").click(function() {
@@ -27,7 +33,7 @@ $(document).ready(function() {
         $.post("/api/play", { Move: move }, function(response) {
             console.log("Response from Middleware:", response);
             if (response.game?.board?.fields && response.message !== "Move gespeichert, Shift erwartet.") {
-                updateBoard(response.game.board.fields);
+                updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
             } else {
                 console.log("Board update not required.");
             } 
@@ -40,7 +46,7 @@ $(document).ready(function() {
         e.preventDefault();
         $.post("/api/newGame", function(response) {
             console.log("New game started:", response);
-            updateBoard(response.game.board.fields);
+            updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
         }).fail(function(err) {
             console.error("Error starting new game:", err);
         });

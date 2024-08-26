@@ -30,6 +30,13 @@ app.post("/api/play", async (req, res) => {
 
     if (currentState.type == "MovingState" || currentState.type == "FlyingState") {
         if (!storedMove) {
+
+            const field = currentState.game.board.fields.find(f => f.ring === move.ring && f.x === move.x && f.y === move.y);
+
+            if (!field || field.color === "⚫") {
+                return res.status(400).json({ error: "Ungültiger Zug: Leeres Feld kann nicht angeklickt werden." });
+            }
+            
             storedMove = move;
             return res.status(200).json({ message: "Move gespeichert, Shift erwartet." });
         } else {
