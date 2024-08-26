@@ -1,6 +1,6 @@
 $(document).ready(function() {
     function updateStatus(currentPlayer, gameState) {
-        $("h2").text(`Current Player: ${currentPlayer.name} - State: ${gameState}`);
+        $("h2").text(`Current Player: ${currentPlayer.color} - State: ${gameState}`);
     }
 
     function updateBoard(fields, currentPlayer, gameState) {

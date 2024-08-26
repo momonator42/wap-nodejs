@@ -6,7 +6,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 105vh;
 }
 
 .bar {
@@ -16,9 +16,9 @@ body {
 
 .background {
     position: relative;
-    width: 95vw;
+    width: 90vw;
     height: 95vw;
-    max-width: 100vh;
+    max-width: 95vh;
     max-height: 100vh;
     display: flex;
     justify-content: center;
@@ -40,6 +40,7 @@ body {
     align-items: center;
     margin: 20px auto;
     background-color: brown;
+    transform: translateY(5%);
 }
 
 #board {
@@ -173,15 +174,15 @@ body {
 @media (max-width: 576px) {
     /* Für kleine Bildschirme (wie Mobilgeräte) */
     .text-center h2 {
-        top: 4%;
-        font-size: 11px;
+        top: 6%;
+        font-size: 20px;
     }
 }
 
 @media (min-width: 577px) and (max-width: 768px) {
     /* Für mittelgroße Bildschirme (wie kleine Tablets) */
     .text-center h2 {
-        top: 3%;
+        top: 6%;
         font-size: 22px;
     }
 }
@@ -189,15 +190,15 @@ body {
 @media (min-width: 769px) and (max-width: 992px) {
     /* Für größere Tablets und kleine Desktops */
     .text-center h2 {
-        top: 4%;
-        font-size: 26px;
+        top: 6%;
+        font-size: 32px;
     }
 }
 
 @media (min-width: 993px) {
     /* Für große Bildschirme (wie Desktop-Monitore) */
     .text-center h2 {
-        top: 5%;
+        top: 7%;
         font-size: 32px;
     }
 }
