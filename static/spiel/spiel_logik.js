@@ -1,6 +1,8 @@
 $(document).ready(function() {
+    let gameOver = false;
+
     function updateStatus(currentPlayer, gameState) {
-        $("h2").text(`Current Player: ${currentPlayer.color} - State: ${gameState}`);
+        $("h2").html(`Current Player: ${currentPlayer.color} <br> State: ${gameState}`);
     }
 
     function updateBoard(fields, currentPlayer, gameState) {
@@ -23,6 +25,11 @@ $(document).ready(function() {
     }
 
     $(".circle").click(function() {
+        if (gameOver) {
+            console.log("Das Spiel ist beendet. Keine weiteren Züge sind erlaubt.");
+            return;
+        }
+
         const position = $(this).data('position').split('-');
         const move = {
             x: parseInt(position[1]),
@@ -34,9 +41,14 @@ $(document).ready(function() {
             console.log("Response from Middleware:", response);
             if (response.game?.board?.fields && response.message !== "Move gespeichert, Shift erwartet.") {
                 updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
+            } else if (response.message === "Das Spiel ist beendet.") {
+                const selector = `.circle[data-position='${move.ring}-${move.x}-${move.y}']`;
+                $(selector).css("background-color", "black");
+                $("h2").html(`Game Over`);
+                gameOver = true;
             } else {
                 console.log("Board update not required.");
-            } 
+            }
         }).fail(function(err) {
             alert(err.responseJSON.error || "Ein Fehler ist aufgetreten.");
         });
@@ -45,6 +57,7 @@ $(document).ready(function() {
     $("#new-game-btn").click(function(e) {
         e.preventDefault();
         $.post("/api/newGame", function(response) {
+            gameOver = false;
             console.log("New game started:", response);
             updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
         }).fail(function(err) {
