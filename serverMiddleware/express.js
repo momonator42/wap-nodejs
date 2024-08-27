@@ -2,20 +2,25 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
+var session = require('express-session');
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 300000 }}))
+
 
 const filePath = path.join(__dirname, "../init-gameState.json");
 
-let currentState = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-
-let storedMove = null;
+app.post("/api/newGame", (req, res) => {
+    req.session.storedMove = null
+    req.session.currentState = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    res.json(req.session.currentState);
+});
 
 app.get("/api", (req, res) => {
-    res.json(currentState);
+    res.json(req.session.currentState);
 });
 
 app.post("/api/play", async (req, res) => {
@@ -28,41 +33,36 @@ app.post("/api/play", async (req, res) => {
         ring: parseInt(req.body.Move.ring, 10)
     };
 
-    if (currentState.type == "MovingState" || currentState.type == "FlyingState") {
-        if (!storedMove) {
-            storedMove = move;
+    if (req.session.currentState.type == "MovingState" || req.session.currentState.type == "FlyingState") {
+        if (!req.session.storedMove) {
+            req.session.storedMove = move;
             return res.status(200).json({ message: "Move gespeichert, Shift erwartet." });
         } else {
             payload = {
-                Move: storedMove,
+                Move: req.session.storedMove,
                 Shift: move,
-                State: currentState
+                State: req.session.currentState
             }
-            storedMove = null;
+            req.session.storedMove = null;
         }
     } else {
         payload = {
             Move: move,
-            State: currentState
+            State: req.session.currentState
         };
     }
 
     try {
-        const response = await axios.post("http://localhost:9000", payload);
+        const response = await axios.post("https://wap-mill-212a87db8908.herokuapp.com", payload);
         
-        currentState = response.data;
+        req.session.currentState = response.data;
 
-        res.json(currentState);
+        res.json(req.session.currentState);
     } catch (error) {
         console.error("Error forwarding the request:", error);
-        storedMove = null;
+        req.session.storedMove = null;
         res.status(500).json({ error: "Der Zug konnte nicht ausgeführt werden!" });
     }
-});
-
-app.post("/api/newGame", (req, res) => {
-    currentState = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-    res.json(currentState);
 });
 
 module.exports = app;

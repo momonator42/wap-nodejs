@@ -1,4 +1,14 @@
 $(document).ready(function() {
+
+    $.post("/api/newGame", function(response) {
+        gameOver = false;
+        console.log("New game started:", response);
+        updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
+    }).fail(function(err) {
+        console.error("Error starting new game:", err);
+        alert("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
+    });
+
     let gameOver = false;
 
     function updateStatus(currentPlayer, gameState) {
