@@ -1,93 +1,104 @@
-$(document).ready(function () {
+class Game {
+    constructor() {
+        this.gameOver = false;
+        this.initializeGame();
+        this.bindEvents();
+    }
 
-    class Game {
-        constructor() {
+    async initializeGame() {
+        try {
+            const response = await axios.post("/api/newGame");
             this.gameOver = false;
-            this.initializeGame();
-            this.bindEvents();
-        }
-
-        initializeGame() {
-            $.post("/api/newGame", (response) => {
-                this.gameOver = false;
-                console.log("New game started:", response);
-                this.updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
-            }).fail((err) => {
-                console.error("Error starting new game:", err);
-                alert("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
-            });
-        }
-
-        bindEvents() {
-            $(".circle").click((event) => this.handleCircleClick(event));
-            $("#new-game-btn").click((event) => this.handleNewGameClick(event));
-        }
-
-        handleCircleClick(event) {
-            if (this.gameOver) {
-                console.log("Das Spiel ist beendet. Keine weiteren Züge sind erlaubt.");
-                return;
-            }
-
-            const position = $(event.currentTarget).data('position').split('-');
-            const move = {
-                x: parseInt(position[1]),
-                y: parseInt(position[2]),
-                ring: parseInt(position[0])
-            };
-
-            $.post("/api/play", { Move: move }, (response) => {
-                console.log("Response from Middleware:", response);
-                if (response.game?.board?.fields && response.message !== "Move gespeichert, Shift erwartet.") {
-                    this.updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
-                } else if (response.message === "Das Spiel ist beendet.") {
-                    const selector = `.circle[data-position='${move.ring}-${move.x}-${move.y}']`;
-                    $(selector).css("background-color", "black");
-                    $("h2").html(`Game Over`);
-                    this.gameOver = true;
-                } else {
-                    console.log("Board update not required.");
-                }
-            }).fail((err) => {
-                alert(err.responseJSON.error || "Ein Fehler ist aufgetreten.");
-            });
-        }
-
-        handleNewGameClick(event) {
-            event.preventDefault();
-            $.post("/api/newGame", (response) => {
-                this.gameOver = false;
-                console.log("New game started:", response);
-                this.updateBoard(response.game.board.fields, response.game.currentPlayer, response.type);
-            }).fail((err) => {
-                console.error("Error starting new game:", err);
-                alert("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
-            });
-        }
-
-        updateStatus(currentPlayer, gameState) {
-            $("h2").html(`Current Player: ${currentPlayer.color} <br> State: ${gameState}`);
-        }
-
-        updateBoard(fields, currentPlayer, gameState) {
-            $(".circle").each(function () {
-                const position = $(this).data('position').split('-');
-                const ring = parseInt(position[0]);
-                const x = parseInt(position[1]);
-                const y = parseInt(position[2]);
-
-                const field = fields.find(f => f.ring === ring && f.x === x && f.y === y);
-
-                if (field && field.color !== "⚫") {
-                    $(this).css("background-color", field.color === "🔴" ? "red" : "blue");
-                } else {
-                    $(this).css("background-color", "black");
-                }
-            });
-
-            this.updateStatus(currentPlayer, gameState);
+            console.log("New game started:", response.data);
+            this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
+        } catch (err) {
+            console.error("Error starting new game:", err);
+            alert("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
         }
     }
 
-    new Game();
-});
+    bindEvents() {
+        document.querySelectorAll(".circle").forEach(circle => {
+            circle.addEventListener("click", (event) => this.handleCircleClick(event));
+        });
+        document.querySelector("#new-game-btn").addEventListener("click", (event) => this.handleNewGameClick(event));
+    }
+
+    async handleCircleClick(event) {
+        if (this.gameOver) {
+            console.log("Das Spiel ist beendet. Keine weiteren Züge sind erlaubt.");
+            return;
+        }
+
+        const position = event.currentTarget.getAttribute('data-position').split('-');
+        const move = {
+            x: parseInt(position[1]),
+            y: parseInt(position[2]),
+            ring: parseInt(position[0])
+        };
+
+        try {
+            const response = await axios.post("/api/play", { Move: move });
+            console.log("Response from Middleware:", response.data);
+
+            if (response.data.game?.board?.fields && response.data.message !== "Move gespeichert, Shift erwartet.") {
+                this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
+            } else if (response.data.message === "Das Spiel ist beendet.") {
+                const selector = `.circle[data-position='${move.ring}-${move.x}-${move.y}']`;
+                document.querySelector(selector).style.backgroundColor = "black";
+                document.querySelector("h2").innerHTML = `Game Over`;
+                this.gameOver = true;
+            } else {
+                console.log("Board update not required.");
+            }
+        } catch (err) {
+            alert(err.response?.data?.error || "Ein Fehler ist aufgetreten.");
+        }
+    }
+
+    async handleNewGameClick(event) {
+        event.preventDefault();
+        try {
+            const response = await axios.post("/api/newGame");
+            this.gameOver = false;
+            console.log("New game started:", response.data);
+            this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
+        } catch (err) {
+            console.error("Error starting new game:", err);
+            alert("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
+        }
+    }
+
+    updateStatus(currentPlayer, gameState) {
+        document.querySelector("h2").innerHTML = `Current Player: ${currentPlayer.color} <br> State: ${gameState}`;
+    }
+
+    updateBoard(fields, currentPlayer, gameState) {
+        document.querySelectorAll(".circle").forEach(circle => {
+            const position = circle.getAttribute('data-position').split('-');
+            const ring = parseInt(position[0]);
+            const x = parseInt(position[1]);
+            const y = parseInt(position[2]);
+
+            const field = fields.find(f => f.ring === ring && f.x === x && f.y === y);
+
+            if (field && field.color !== "⚫") {
+                circle.style.backgroundColor = field.color === "🔴" ? "red" : "blue";
+            } else {
+                circle.style.backgroundColor = "black";
+            }
+        });
+
+        this.updateStatus(currentPlayer, gameState);
+    }
+}
+
+if (typeof window !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function() {
+        new Game();
+    });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Game;
+}

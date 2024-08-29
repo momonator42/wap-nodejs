@@ -38,6 +38,10 @@ class MuehleGame {
     }
 
     async playMove(req, res) {
+        if (!req.session.currentState) {
+            return res.status(400).json({ error: "Spielzustand ist nicht initialisiert. Starten Sie ein neues Spiel mit /api/newGame." });
+        }
+
         let payload = null;
 
         const move = {
