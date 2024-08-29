@@ -10,13 +10,17 @@ body {
 
 .svg-container {
     position: absolute;
-    top: calc(min(10vh, 2%));
+    top: calc(min(10vh, 5%));
     left: 50%;
     transform: translateX(-50%); 
     background-color: white; 
     padding: 10px; 
     border-radius: 50%; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 30vw; 
+    height: 30vw; 
+    max-width: 25vh; 
+    max-height: 25vh; 
 }
 
 .container {
