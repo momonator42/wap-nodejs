@@ -2,67 +2,85 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const axios = require("axios");
-var session = require('express-session');
+const session = require("express-session");
 
-const app = express();
+class MuehleGame {
+    constructor() {
+        this.app = express();
+        this.filePath = path.join(__dirname, "../init-gameState.json");
+        this.setupMiddleware();
+        this.setupRoutes();
+    }
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 300000 }}))
+    setupMiddleware() {
+        this.app.use(express.json());
+        this.app.use(express.urlencoded({ extended: true }));
+        this.app.use(session({
+            secret: 'keyboard cat',
+            cookie: { maxAge: 300000 }
+        }));
+    }
 
+    setupRoutes() {
+        this.app.post("/api/newGame", (req, res) => this.newGame(req, res));
+        this.app.get("/api", (req, res) => this.getCurrentState(req, res));
+        this.app.post("/api/play", (req, res) => this.playMove(req, res));
+    }
 
-const filePath = path.join(__dirname, "../init-gameState.json");
+    newGame(req, res) {
+        req.session.storedMove = null;
+        req.session.currentState = JSON.parse(fs.readFileSync(this.filePath, "utf-8"));
+        res.json(req.session.currentState);
+    }
 
-app.post("/api/newGame", (req, res) => {
-    req.session.storedMove = null
-    req.session.currentState = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-    res.json(req.session.currentState);
-});
+    getCurrentState(req, res) {
+        res.json(req.session.currentState);
+    }
 
-app.get("/api", (req, res) => {
-    res.json(req.session.currentState);
-});
+    async playMove(req, res) {
+        let payload = null;
 
-app.post("/api/play", async (req, res) => {
+        const move = {
+            x: parseInt(req.body.Move.x, 10),
+            y: parseInt(req.body.Move.y, 10),
+            ring: parseInt(req.body.Move.ring, 10)
+        };
 
-    let payload = null;
-
-    const move = {
-        x: parseInt(req.body.Move.x, 10),
-        y: parseInt(req.body.Move.y, 10),
-        ring: parseInt(req.body.Move.ring, 10)
-    };
-
-    if (req.session.currentState.type == "MovingState" || req.session.currentState.type == "FlyingState") {
-        if (!req.session.storedMove) {
-            req.session.storedMove = move;
-            return res.status(200).json({ message: "Move gespeichert, Shift erwartet." });
+        if (req.session.currentState.type === "MovingState" || req.session.currentState.type === "FlyingState") {
+            if (!req.session.storedMove) {
+                req.session.storedMove = move;
+                return res.status(200).json({ message: "Move gespeichert, Shift erwartet." });
+            } else {
+                payload = {
+                    Move: req.session.storedMove,
+                    Shift: move,
+                    State: req.session.currentState
+                };
+                req.session.storedMove = null;
+            }
         } else {
             payload = {
-                Move: req.session.storedMove,
-                Shift: move,
+                Move: move,
                 State: req.session.currentState
-            }
-            req.session.storedMove = null;
+            };
         }
-    } else {
-        payload = {
-            Move: move,
-            State: req.session.currentState
-        };
+
+        try {
+            const response = await axios.post("https://wap-mill-212a87db8908.herokuapp.com", payload);
+            req.session.currentState = response.data;
+            res.json(req.session.currentState);
+        } catch (error) {
+            console.error("Error forwarding the request:", error);
+            req.session.storedMove = null;
+            res.status(500).json({ error: "Der Zug konnte nicht ausgeführt werden!" });
+        }
     }
 
-    try {
-        const response = await axios.post("https://wap-mill-212a87db8908.herokuapp.com", payload);
-        
-        req.session.currentState = response.data;
-
-        res.json(req.session.currentState);
-    } catch (error) {
-        console.error("Error forwarding the request:", error);
-        req.session.storedMove = null;
-        res.status(500).json({ error: "Der Zug konnte nicht ausgeführt werden!" });
+    start(port) {
+        this.app.listen(port, () => {
+            console.log(`Server läuft auf Port ${port}`);
+        });
     }
-});
+}
 
-module.exports = app;
+module.exports = new MuehleGame().app;
