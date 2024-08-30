@@ -1,13 +1,10 @@
 const express = require("express");
-const path = require("path");
-const fs = require("fs");
-const axios = require("axios");
+import { Session } from "./session"
 const session = require("express-session");
 
 class MuehleGame {
     constructor() {
         this.app = express();
-        this.filePath = path.join(__dirname, "../init-gameState.json");
         this.setupMiddleware();
         this.setupRoutes();
     }
@@ -28,62 +25,25 @@ class MuehleGame {
     }
 
     newGame(req, res) {
-        req.session.storedMove = null;
-        req.session.currentState = JSON.parse(fs.readFileSync(this.filePath, "utf-8"));
-        res.json(req.session.currentState);
+        req.session.session = new Session();
+        res.json(req.session.session.currentState);
     }
 
     getCurrentState(req, res) {
-        res.json(req.session.currentState);
+        res.json(req.session.session.currentState);
     }
 
     async playMove(req, res) {
-        if (!req.session.currentState) {
-            return res.status(400).json({ error: "Spielzustand ist nicht initialisiert. Starten Sie ein neues Spiel mit /api/newGame." });
-        }
 
-        let payload = null;
+        let exitCode = await Session.playMove(req.session.session, req.body.Move);
 
-        const move = {
-            x: parseInt(req.body.Move.x, 10),
-            y: parseInt(req.body.Move.y, 10),
-            ring: parseInt(req.body.Move.ring, 10)
-        };
-
-        if (req.session.currentState.type === "MovingState" || req.session.currentState.type === "FlyingState") {
-            if (!req.session.storedMove) {
-                req.session.storedMove = move;
-                return res.status(200).json({ message: "Move gespeichert, Shift erwartet." });
-            } else {
-                payload = {
-                    Move: req.session.storedMove,
-                    Shift: move,
-                    State: req.session.currentState
-                };
-                req.session.storedMove = null;
-            }
+        if (exitCode == 200) {
+            res.status(200).json(req.session.session.currentState);
+        } else if (exitCode == 201) {
+            res.status(200).json({ message: "Move gespeichert, Shift erwartet." });
         } else {
-            payload = {
-                Move: move,
-                State: req.session.currentState
-            };
-        }
-
-        try {
-            const response = await axios.post("https://wap-mill-212a87db8908.herokuapp.com", payload);
-            req.session.currentState = response.data;
-            res.json(req.session.currentState);
-        } catch (error) {
-            console.error("Error forwarding the request:", error);
-            req.session.storedMove = null;
             res.status(500).json({ error: "Der Zug konnte nicht ausgeführt werden!" });
         }
-    }
-
-    start(port) {
-        this.app.listen(port, () => {
-            console.log(`Server läuft auf Port ${port}`);
-        });
     }
 }
 
