@@ -1,8 +1,12 @@
 const fetch = require('node-fetch');
 const path = require("path");
 const fs = require("fs");
+const jwt = require('jsonwebtoken');
 
 export class Session {
+
+    static secret = process.env.JWT_SECRET;
+
     constructor(state, move) {
         if (state) {
             this.currentState = state;
@@ -16,6 +20,16 @@ export class Session {
         } else {
             this.storedMove = null;
         }
+    }
+
+    static createJWT() {
+        if (!Session.secret) {
+            throw new Error('JWT_SECRET ist nicht in den Umgebungsvariablen gesetzt.');
+        }
+
+        // Minimaler Payload oder leer, wenn keine spezifischen Daten benötigt werden
+        const payload = {}; // Kann leer sein oder minimale Daten enthalten
+        return jwt.sign(payload, Session.secret, { expiresIn: '1h' });
     }
 
     static async playMove(session, move) {
@@ -40,10 +54,16 @@ export class Session {
             };
         }
 
+        const token = Session.createJWT();
+        console.log("token: " +  token);
+
         try {
-            const response = await fetch("https://wap-mill-212a87db8908.herokuapp.com", {
+            const response = await fetch(process.env.WAP_MILL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify(payload)
             });
             session.currentState = await response.json();

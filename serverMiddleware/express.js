@@ -47,9 +47,8 @@ class MuehleGame {
 
     newGame(req, res) {
         req.session.session = new Session();
-        // Speichert currentState automatisch in Redis, da es Teil von req.session ist
         req.session.session.currentState = req.session.session.currentState;
-        req.session.save(err => {  // Save method to ensure it gets persisted in Redis
+        req.session.save(err => {
             if (err) {
                 return res.status(500).json({ error: "Fehler beim Speichern der Session." });
             }
