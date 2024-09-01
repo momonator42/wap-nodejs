@@ -1,16 +1,25 @@
 const request = require('supertest');
+const { createClient } = require('redis');
 const MuehleGame = require('../serverMiddleware/express');
 import { Session } from "../serverMiddleware/session";
 
 jest.mock("../serverMiddleware/session");
+jest.mock('redis');
 
 describe('MuehleGame API', () => {
     let app;
     let agent;
+    let redisClient;
 
     beforeEach(() => {
         app = MuehleGame;
         agent = request.agent(MuehleGame);
+        redisClient = createClient(); // Dies ist jetzt der ioredis-mock Client
+        redisClient.flushall(); // Leert den Redis-Store vor jedem Test
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks(); // Setzt alle Mocks nach jedem Test zurück
     });
 
     describe('POST /api/newGame', () => {
