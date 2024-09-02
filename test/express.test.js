@@ -10,12 +10,20 @@ describe('MuehleGame API', () => {
     let app;
     let agent;
     let redisClient;
+    let mockSession;
 
     beforeEach(() => {
         app = MuehleGame;
         agent = request.agent(MuehleGame);
         redisClient = createClient(); // Dies ist jetzt der ioredis-mock Client
         redisClient.flushall(); // Leert den Redis-Store vor jedem Test
+
+        mockSession = {
+            session: {
+                currentState: {},
+                save: jest.fn()  // Hier mocken wir die save-Methode
+            }
+        };
     });
 
     afterEach(() => {
@@ -24,10 +32,31 @@ describe('MuehleGame API', () => {
 
     describe('POST /api/newGame', () => {
         it('should start a new game and initialize session', async () => {
-            const response = await request(app)
+            const response = await agent
                 .post('/api/newGame')
                 .expect(200);
         });
+    });
+
+    it('should return an error if session.save fails in newGame', async () => {
+        // Simulieren eines Fehlers bei session.save
+        const saveMock = jest.fn((callback) => callback(new Error("Fehler beim Speichern der Session.")));
+    
+        mockSession.session.save = saveMock;
+
+        // Fügen Sie den Mock zur Anfrage hinzu
+        agent.use((req, res, next) => {
+            req.session = saveMock;
+            next();
+        });
+
+        const res = await agent
+            .post('/api/newGame')
+            .send();    
+
+        expect(saveMock).toHaveBeenCalled();
+        expect(res.statusCode).toBe(500);
+        expect(res.body.error).toBe("Fehler beim Speichern der Session.");
     });
 
     describe('GET /api', () => {
@@ -39,7 +68,38 @@ describe('MuehleGame API', () => {
         });
     });
 
-    
+    it('should return an error if session is not found in getCurrentState', async () => {
+        app.use((req, res, next) => {
+            req.session = {};
+            next();
+        });
+
+        const res = await agent
+            .get('/api')
+            .send();
+
+        expect(res.statusCode).toBe(404);
+        expect(res.body.error).toBe("Keine Sitzung gefunden. Starten Sie ein neues Spiel.");
+    });
+
+    it('should return an error if session.save fails in playMove', async () => {
+        // Simulieren eines Fehlers bei session.save
+        await agent.post('/api/newGame');
+        mockSession.session.save.mockImplementation((callback) => callback(new Error("Fehler beim Speichern der Session.")));
+
+        // Fügen Sie den Mock zur Anfrage hinzu
+        app.use((req, res, next) => {
+            req.session = mockSession;
+            next();
+        });
+
+        const res = await agent
+            .post('/api/play')
+            .send({ Move: { x: 0, y: 0, ring: 0 } });
+
+        expect(res.statusCode).toBe(500);
+        expect(res.body.error).toBe("Fehler beim Speichern der Session.");
+    });
 
     describe('POST /api/play', () => {
         it('should play a move and update the game state', async () => {

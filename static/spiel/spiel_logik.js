@@ -1,3 +1,5 @@
+const axios = require('axios');
+
 class Game {
     constructor() {
         this.gameOver = false;
@@ -9,7 +11,6 @@ class Game {
         try {
             const response = await axios.post("/api/newGame");
             this.gameOver = false;
-            console.log("New game started:", response.data);
             this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
         } catch (err) {
             console.error("Error starting new game:", err);

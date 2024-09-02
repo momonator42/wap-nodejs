@@ -233,11 +233,11 @@ body {
     position: absolute;
     top: 10px;
     right: 20px;
-    font-size: 32px; /* Größere Schriftart für den Close-Button */
+    font-size: 32px;
     cursor: pointer;
-    color: #fff; /* Dunkle Farbe für den Close-Button */
-    font-weight: bold; /* Macht den Button fetter */
-    background: none; /* Entfernt den Hintergrund des Buttons */
-    border: none; /* Entfernt den Rahmen des Buttons */
-    outline: none; /* Entfernt den Fokusrahmen des Buttons */
+    color: #fff; 
+    font-weight: bold; 
+    background: none; 
+    border: none; 
+    outline: none; 
 }

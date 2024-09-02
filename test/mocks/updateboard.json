@@ -1,0 +1,23 @@
+{
+    "fields": [
+      {"color": "⚫", "ring": 0, "x": 0, "y": 0},
+      {"color": "⚫", "ring": 0, "x": 1, "y": 0},
+      {"color": "⚫", "ring": 0, "x": 2, "y": 0},
+      {"color": "⚫", "ring": 0, "x": 0, "y": 1},
+      {"color": "⚫", "ring": 0, "x": 2, "y": 1},
+      {"color": "⚫", "ring": 0, "x": 0, "y": 2},
+      {"color": "⚫", "ring": 0, "x": 1, "y": 2},
+      {"color": "⚫", "ring": 0, "x": 2, "y": 2},
+      {"color": "⚫", "ring": 1, "x": 0, "y": 0},
+      {"color": "⚫", "ring": 1, "x": 1, "y": 0},
+      {"color": "⚫", "ring": 1, "x": 2, "y": 0},
+      {"color": "⚫", "ring": 1, "x": 0, "y": 1},
+      {"color": "⚫", "ring": 1, "x": 1, "y": 1},
+      {"color": "⚫", "ring": 1, "x": 2, "y": 1},
+      {"color": "⚫", "ring": 1, "x": 0, "y": 2},
+      {"color": "⚫", "ring": 1, "x": 1, "y": 2},
+      {"color": "⚫", "ring": 1, "x": 2, "y": 2}
+    ],
+    "currentPlayer": {"color": "🔴", "name": "PlayerOne"},
+    "type": "SettingState"
+}
