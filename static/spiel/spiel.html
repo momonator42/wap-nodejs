@@ -20,7 +20,7 @@
                             <a id="new-game-btn" class="btn btn-primary w-100" href="#" style="font-size: smaller;">Neues Spiel</a>
                         </div>
                         <div class="col-4 col-lg-12">
-                            <a class="btn btn-success w-100" href="#" style="font-size: smaller;">Mehrspieler</a>
+                            <a id="multiplayer" class="btn btn-success w-100" href="#" style="font-size: smaller;">Mehrspieler</a>
                         </div>
                     </div>
                 </div>
@@ -67,6 +67,14 @@
                 </div>
             </div>
         </div>
+
+        <div id="custom-popup" class="popup hidden">
+            <div class="popup-content">
+                <span id="popup-close" class="popup-close">&times;</span>
+                <p id="popup-message"></p>
+            </div>
+        </div>
+
         <script src="spiel_logik.js"></script>
     </body>
 </html>

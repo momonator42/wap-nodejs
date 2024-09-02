@@ -60,4 +60,18 @@ describe("Session", () => {
 
         expect(code).toEqual(500);
     })
+
+    it("session should not be set", async () => {
+        const movingFilePath = path.join(__dirname, "mocks", "gameSimulation.json");
+        const movingFileData = fs.readFileSync(movingFilePath, "utf-8");
+        let movingFileJson = JSON.parse(movingFileData);
+
+        let session = new Session(movingFileJson, { x: 0, y: 0, ring: 0 });
+
+        Session.secret = null;
+
+        let code = await Session.playMove(session, { x: 0, y: 0, ring: 0 });
+
+        expect(code).toEqual(500);
+    })
 });

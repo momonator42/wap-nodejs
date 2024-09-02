@@ -24,11 +24,10 @@ export class Session {
 
     static createJWT() {
         if (!Session.secret) {
-            throw new Error('JWT_SECRET ist nicht in den Umgebungsvariablen gesetzt.');
+            return 500;
         }
 
-        // Minimaler Payload oder leer, wenn keine spezifischen Daten benötigt werden
-        const payload = {}; // Kann leer sein oder minimale Daten enthalten
+        const payload = {}; 
         return jwt.sign(payload, Session.secret, { expiresIn: '1h' });
     }
 
@@ -55,7 +54,6 @@ export class Session {
         }
 
         const token = Session.createJWT();
-        console.log("token: " +  token);
 
         try {
             const response = await fetch(process.env.WAP_MILL, {
@@ -69,7 +67,6 @@ export class Session {
             session.currentState = await response.json();
             return 200;
         } catch (error) {
-            console.error("Error forwarding the request: ", error);
             session.storedMove = null;
             return 500;
         }

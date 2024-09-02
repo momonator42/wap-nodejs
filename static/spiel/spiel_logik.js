@@ -13,7 +13,7 @@ class Game {
             this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
         } catch (err) {
             console.error("Error starting new game:", err);
-            alert("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
+            this.showPopup("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
         }
     }
 
@@ -22,11 +22,17 @@ class Game {
             circle.addEventListener("click", (event) => this.handleCircleClick(event));
         });
         document.querySelector("#new-game-btn").addEventListener("click", (event) => this.handleNewGameClick(event));
+
+        document.querySelector("#multiplayer").addEventListener("click", () => this.showPopup("Coming Soon"));
+
+        document.querySelector("#popup-close").addEventListener("click", () => {
+            this.hidePopup();
+        });
     }
 
     async handleCircleClick(event) {
         if (this.gameOver) {
-            console.log("Das Spiel ist beendet. Keine weiteren Züge sind erlaubt.");
+            this.showPopup("Das Spiel ist beendet. Keine weiteren Züge sind erlaubt.");
             return;
         }
 
@@ -52,7 +58,8 @@ class Game {
                 console.log("Board update not required.");
             }
         } catch (err) {
-            alert(err.response?.data?.error || "Ein Fehler ist aufgetreten.");
+            console.log("error: " + err.response.data.error)
+            this.showPopup(err.response?.data?.error || "Ein Fehler ist aufgetreten.");
         }
     }
 
@@ -65,7 +72,7 @@ class Game {
             this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
         } catch (err) {
             console.error("Error starting new game:", err);
-            alert("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
+            this.showPopup("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
         }
     }
 
@@ -90,6 +97,15 @@ class Game {
         });
 
         this.updateStatus(currentPlayer, gameState);
+    }
+
+    showPopup(message) {
+        document.querySelector("#popup-message").textContent = message;
+        document.querySelector("#custom-popup").classList.remove("hidden");
+    }
+
+    hidePopup() {
+        document.querySelector("#custom-popup").classList.add("hidden");
     }
 }
 
