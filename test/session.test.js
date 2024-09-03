@@ -1,77 +1,50 @@
 const request = require("supertest");
-const express_session = require("express-session");
+import { GameState } from "../serverMiddleware/gameState";
 import { Session } from "../serverMiddleware/session"
-const axios = require("axios");
-const path = require("path");
-const fs = require("fs");
+const { createClient } = require("redis");
+
+jest.unmock('redis');
 
 describe("Session", () => {
-    it('should initialize the field', async () => {
+    let redisClient;
 
-        let session = new Session();
+    beforeEach(async () => {
+        redisClient = createClient({
+            url:  process.env.REDIS_TLS_URL,
+            socket: {
+                tls: true,
+                rejectUnauthorized: false  // Akzeptiert selbstsignierte Zertifikate (ACHTUNG: Sicherheitsrisiko!)
+            }
+        });
+        if (redisClient.isOpen) {
+            await redisClient.disconnect();
+        }
+        await redisClient.connect().catch(console.error);
+    })
 
-        expect(session.currentState).not.toEqual(null);
+    it('should initialize a Session', async () => {
 
-        expect(session.storedMove).toEqual(null);
+        let gameState = new GameState();
+        let session = new Session(redisClient);
+        await Session.saveGameState(session, gameState, redisClient);
+        const result = await Session.loadGameState(session, redisClient);
+
+        let code = await GameState.playMove(gameState, { x: 0, y: 0, ring: 0 });
+        expect(code).toEqual(200);
     });
 
-    it("should do the first move", async () => {
-        let session = new Session();
 
-        let code = await Session.playMove(session, { x: 0, y: 0, ring: 0 });
-        expect(code).toEqual(200);
 
-        expect(session.currentState.game.currentPlayer.color).toEqual("🔵");
-        expect(session.currentState.game.board.fields[0].color).toEqual("🔴");
-    })
+    it('should make some moves', async () => {
+        let session = new Session(redisClient);
+        
+        let code = await Session.playMove(session, redisClient, { x: 0, y: 0, ring: 0 });
+    });
 
-    it("it should select a field in movingState", async () => {
-        const movingFilePath = path.join(__dirname, "mocks", "gameSimulation.json");
-        const movingFileData = fs.readFileSync(movingFilePath, "utf-8");
-        let movingFileJson = JSON.parse(movingFileData);
-
-        let session = new Session(movingFileJson, null);
-
-        let code = await Session.playMove(session, { x: 1, y: 0, ring: 0 });
-
-        expect(code).toEqual(201);
-    })
-
-    it("it should move a field in movingState", async () => {
-        const movingFilePath = path.join(__dirname, "mocks", "gameSimulation.json");
-        const movingFileData = fs.readFileSync(movingFilePath, "utf-8");
-        let movingFileJson = JSON.parse(movingFileData);
-
-        let session = new Session(movingFileJson, { x: 1, y: 0, ring: 0 });
-
-        let code = await Session.playMove(session, { x: 0, y: 0, ring: 0 });
-
-        expect(code).toEqual(200);
-    })
-
-    it("it should handle a wrong move", async () => {
-        const movingFilePath = path.join(__dirname, "mocks", "gameSimulation.json");
-        const movingFileData = fs.readFileSync(movingFilePath, "utf-8");
-        let movingFileJson = JSON.parse(movingFileData);
-
-        let session = new Session(movingFileJson, { x: 0, y: 0, ring: 0 });
-
-        let code = await Session.playMove(session, { x: 0, y: 0, ring: 0 });
-
-        expect(code).toEqual(500);
-    })
-
-    it("session should not be set", async () => {
-        const movingFilePath = path.join(__dirname, "mocks", "gameSimulation.json");
-        const movingFileData = fs.readFileSync(movingFilePath, "utf-8");
-        let movingFileJson = JSON.parse(movingFileData);
-
-        let session = new Session(movingFileJson, { x: 0, y: 0, ring: 0 });
-
-        Session.secret = null;
-
-        let code = await Session.playMove(session, { x: 0, y: 0, ring: 0 });
-
-        expect(code).toEqual(500);
-    })
-});
+    
+    afterEach(async () => {
+        if (redisClient.isOpen) {
+            await redisClient.disconnect();
+        }
+    });
+})

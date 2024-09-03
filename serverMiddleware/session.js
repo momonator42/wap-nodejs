@@ -1,74 +1,58 @@
-const fetch = require('node-fetch');
-const path = require("path");
-const fs = require("fs");
-const jwt = require('jsonwebtoken');
+import { GameState } from "./gameState"
+import { v4 as uuidv4 } from 'uuid';
 
 export class Session {
-
-    static secret = process.env.JWT_SECRET;
-
-    constructor(state, move) {
-        if (state) {
-            this.currentState = state;
-        } else {
-            let filePath = path.join(__dirname, "../init-gameState.json");
-            this.currentState = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-        }
-
-        if (move) {
-            this.storedMove = move;
-        } else {
-            this.storedMove = null;
-        }
+    constructor() {
+        this.name = null;
+        this.gameId = `game:${uuidv4()}`;
     }
 
-    static createJWT() {
-        if (!Session.secret) {
-            return 500;
-        }
-
-        const payload = {}; 
-        return jwt.sign(payload, Session.secret, { expiresIn: '1h' });
+    static async startMultiplayerGame(session, redisClient) {
+        session.name = "PlayerOne";
+        await Session.saveGameState(session, new GameState(), redisClient);
     }
 
-    static async playMove(session, move) {
-        let payload = null;
+    static async endMultiplayerGame(session, redisClient) {
+        session = new Session();
+        await Session.saveGameState(session, new GameState(), redisClient);
+    }
 
-        if (session.currentState.type === "MovingState" || session.currentState.type === "FlyingState") {
-            if (!session.storedMove) {
-                session.storedMove = move;
-                return 201;
-            } else {
-                payload = {
-                    Move: session.storedMove,
-                    Shift: move,
-                    State: session.currentState
-                };
-                session.storedMove = null;
-            }
-        } else {
-            payload = {
-                Move: move,
-                State: session.currentState
-            };
-        }
+    static async joinMultiplayerGame(session, redisClient) {
+        session.name = "PlayerTwo";
+        let result = await Session.loadGameState(session, redisClient);
+        return result.currentState;
+    }
 
-        const token = Session.createJWT();
-
+    static async playMove(session, redisClient, move) {
         try {
-            const response = await fetch(process.env.WAP_MILL, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-            session.currentState = await response.json();
-            return 200;
-        } catch (error) {
-            session.storedMove = null;
+            const gameState = await Session.loadGameState(session, redisClient);
+            if (session.name != null && session.name != gameState.currentState.game.currentPlayer.name) {
+                return 400;
+            }
+            const code = await GameState.playMove(gameState, move);
+            await Session.saveGameState(session, gameState, redisClient);
+            return code;
+        } catch(err) {
             return 500;
+        }
+    }
+
+    static async saveGameState(session, gameState, redisClient) {
+        try {
+            await redisClient.set(session.gameId, JSON.stringify(gameState));
+            await redisClient.expire(session.gameId, 350);
+        } catch (error) {
+            console.error('Fehler beim Speichern des Spielzustands:', error);
+        }
+    }
+
+    static async loadGameState(session, redisClient) {
+        try {
+            const jsonString = await redisClient.get(session.gameId);
+            const gameState = JSON.parse(jsonString);
+            return gameState;
+        } catch (error) {
+            console.error('Fehler beim Laden des Spielzustands:', error);
         }
     }
 }
