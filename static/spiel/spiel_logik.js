@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 class Game {
     constructor() {
         this.gameOver = false;
@@ -9,7 +7,7 @@ class Game {
 
     async initializeGame() {
         try {
-            const response = await axios.post("/api/newGame");
+            const response = await axios.get("/api");
             this.gameOver = false;
             this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
         } catch (err) {

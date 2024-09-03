@@ -56,7 +56,7 @@ class MuehleGame {
 
     getCurrentState(req, res) {
         if (!req.session.session) {
-            return res.status(404).json({ error: "Keine Sitzung gefunden. Starten Sie ein neues Spiel." });
+            return this.newGame(req, res)
         }
         res.json(req.session.session.currentState);
     }
