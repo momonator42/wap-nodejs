@@ -207,6 +207,10 @@ body {
     visibility: hidden;
 }
 
+.hiddenButton {
+    display: None;
+}
+
 .popup {
     position: fixed;
     top: 0;

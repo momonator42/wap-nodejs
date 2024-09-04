@@ -80,19 +80,24 @@ class Game {
     }
 
     toggleExitMultiplayerButton(show) {
-        const exitButton = document.getElementById('exit-multiplayer-btn');
+        const exitButton = document.getElementById('hideButton');
+        const buttonRow = exitButton.closest('.row');
         const buttons = document.querySelectorAll('.bar .col-3, .bar .col-4');
     
         if (show) {
             // Zeige den Exit Multiplayer Button an und ändere die Klassen zurück zu col-3
-            exitButton.classList.remove('hidden');
+            exitButton.classList.remove('hiddenButton');
+            buttonRow.classList.remove('g-4'); 
+            buttonRow.classList.add('g-0'); 
             buttons.forEach(button => {
                 button.classList.remove('col-4');
                 button.classList.add('col-3');
             });
         } else {
             // Verstecke den Exit Multiplayer Button und ändere die Klassen auf col-4
-            exitButton.classList.add('hidden');
+            exitButton.classList.add('hiddenButton');
+            buttonRow.classList.remove('g-0');
+            buttonRow.classList.add('g-4');
             buttons.forEach(button => {
                 button.classList.remove('col-3');
                 button.classList.add('col-4');
