@@ -1,9 +1,50 @@
 class Game {
     constructor() {
         this.gameOver = false;
+        this.socket = null;
         this.initializeGame();
         this.bindEvents();
         this.toggleExitMultiplayerButton(false);
+    }
+
+    initializeSocket() {
+        const socket = io(`${window.location.hostname}:3001`, { autoConnect: false });
+
+        // Verbindung manuell starten
+        socket.connect();
+
+        socket.on('connect', () => {
+            console.log("Verbunden mit WebSocket-Server");
+        });
+
+        // Fehlerbehandlung
+        socket.on('connect_error', (err) => {
+            console.error("Verbindungsfehler:", err);
+        });
+
+        // Auf Nachrichten hören, um das Spielbrett zu aktualisieren
+        socket.on('updateBoard', (data) => {
+            this.updateStatus(data.message.game.currentPlayer, data.message.type);
+            this.updateBoard(data.message.game.board.fields, data.message.game.currentPlayer, data.message.type);
+        });
+
+        socket.on('disconnect', () => {
+            console.log("Verbindung zum WebSocket-Server verloren");
+        });
+    }
+
+    // Schließe die WebSocket-Verbindung
+    closeSocket() {
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket = null;
+            console.log("WebSocket-Verbindung geschlossen");
+        }
+    }
+
+    // Beispiel einer Methode, um einen Spielzug zu senden
+    sendMove(move) {
+        this.socket.emit('move', move);
     }
 
     async initializeGame() {
@@ -39,6 +80,7 @@ class Game {
             try {
                 const response = await axios.post("/api/exitMultiplayer");
                 this.toggleExitMultiplayerButton(false);
+                this.closeSocket(); // WebSocket schließen, wenn Multiplayer verlassen wird
                 this.showPopup(response.data.message);
                 this.updateBoard(response.data.state.currentState.game.board.fields, 
                     response.data.state.currentState.game.currentPlayer, 
@@ -59,6 +101,7 @@ class Game {
                 this.gameOver = false;
                 this.toggleExitMultiplayerButton(true);
                 this.showPopup("Multiplayer-Spiel gestartet. Spiel-ID: " + response.data.gameId);
+                this.initializeSocket(); // WebSocket nur im Multiplayer-Modus starten
             } catch (err) {
                 console.error("Fehler beim Starten eines Multiplayer-Spiels:", err);
                 this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht gestartet werden.");
@@ -72,6 +115,7 @@ class Game {
                 this.updateBoard(response.data.gameState.game.board.fields, 
                     response.data.gameState.game.currentPlayer, 
                     response.data.gameState.type);
+                this.initializeSocket(); // WebSocket nur im Multiplayer-Modus starten    
             } catch (err) {
                 console.error("Fehler beim Beitreten eines Multiplayer-Spiels:", err);
                 this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht beigetreten werden.");
