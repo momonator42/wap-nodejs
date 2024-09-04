@@ -43,6 +43,40 @@ class MuehleGame {
         this.app.post("/api/newGame", (req, res) => this.newGame(req, res));
         this.app.get("/api", (req, res) => this.getCurrentState(req, res));
         this.app.post("/api/play", (req, res) => this.playMove(req, res));
+        this.app.post("/api/startMultiplayer", (req, res) => this.startMultiplayerGame(req, res));
+        this.app.post("/api/joinMultiplayer", (req, res) => this.joinMultiplayerGame(req, res));
+        this.app.post("/api/exitMultiplayer", (req, res) => this.exitMultiplayer(req, res))
+    }
+
+    async startMultiplayerGame(req, res) {
+        await Session.startMultiplayerGame(req.session.session, this.redisClient);
+        req.session.save(err => {
+            if (err) {
+                return res.status(500).json({ error: "Fehler beim Starten des Multiplayer-Spiels." });
+            }
+            res.json({ gameId: req.session.session.gameId });
+        });
+    }
+
+    async joinMultiplayerGame(req, res) {
+        const gameId = req.body.gameId;
+        const result = await Session.joinMultiplayerGame(req.session.session, this.redisClient, gameId);
+        req.session.save(err => {
+            if (err) {
+                return res.status(500).json({ error: "Fehler beim Beitreten des Multiplayer-Spiels." });
+            }
+            res.json({ gameState: result });
+        });
+    }
+
+    async exitMultiplayer(req, res) {
+        const result = await Session.endMultiplayerGame(req.session.session, this.redisClient);
+        req.session.save(err => {
+            if (err) {
+                return res.status(500).json({ error: "Fehler beim Verlassen des Multiplayer-Spiels." });
+            }
+            res.json({ message: "Sitzung verlassen!", state: result});
+        });
     }
 
     async newGame(req, res) {
@@ -84,6 +118,8 @@ class MuehleGame {
                 }
                 res.status(200).json({ message: "Move gespeichert, Shift erwartet." });
             });
+        } else if (exitCode == 401) {
+            res.status(500).json({ error: "Du bist nicht dran!" });
         } else {
             res.status(500).json({ error: "Der Zug konnte nicht ausgeführt werden!" });
         }

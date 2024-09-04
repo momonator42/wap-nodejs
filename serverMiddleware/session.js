@@ -10,15 +10,19 @@ export class Session {
     static async startMultiplayerGame(session, redisClient) {
         session.name = "PlayerOne";
         await Session.saveGameState(session, new GameState(), redisClient);
+        return await Session.loadGameState(session, redisClient);
     }
 
     static async endMultiplayerGame(session, redisClient) {
-        session = new Session();
+        session.name = null;
+        session.gameId = `game:${uuidv4()}`;
         await Session.saveGameState(session, new GameState(), redisClient);
+        return await Session.loadGameState(session, redisClient);
     }
 
-    static async joinMultiplayerGame(session, redisClient) {
+    static async joinMultiplayerGame(session, redisClient, game) {
         session.name = "PlayerTwo";
+        session.gameId = game;
         let result = await Session.loadGameState(session, redisClient);
         return result.currentState;
     }
@@ -27,7 +31,7 @@ export class Session {
         try {
             const gameState = await Session.loadGameState(session, redisClient);
             if (session.name != null && session.name != gameState.currentState.game.currentPlayer.name) {
-                return 400;
+                return 401;
             }
             const code = await GameState.playMove(gameState, move);
             await Session.saveGameState(session, gameState, redisClient);

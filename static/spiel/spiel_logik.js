@@ -3,6 +3,7 @@ class Game {
         this.gameOver = false;
         this.initializeGame();
         this.bindEvents();
+        this.toggleExitMultiplayerButton(false);
     }
 
     async initializeGame() {
@@ -22,11 +23,81 @@ class Game {
         });
         document.querySelector("#new-game-btn").addEventListener("click", (event) => this.handleNewGameClick(event));
 
-        document.querySelector("#multiplayer").addEventListener("click", () => this.showPopup("Coming Soon"));
+        document.querySelector("#multiplayer").addEventListener("click", (event) => this.handleMultiplayerClick(event));
 
         document.querySelector("#popup-close").addEventListener("click", () => {
             this.hidePopup();
         });
+
+        document.querySelector("#exit-multiplayer-btn").addEventListener("click", (event) => this.handleExitMultiplayerClick(event));
+    }
+
+    async handleExitMultiplayerClick(event) {
+        event.preventDefault();
+        const confirmation = confirm("Willst du das Multiplayer-Spiel wirklich verlassen?");
+        if (confirmation) {
+            try {
+                const response = await axios.post("/api/exitMultiplayer");
+                this.toggleExitMultiplayerButton(false);
+                this.showPopup(response.data.message);
+                this.updateBoard(response.data.state.currentState.game.board.fields, 
+                    response.data.state.currentState.game.currentPlayer, 
+                    response.data.state.currentState.type);
+            } catch (err) {
+                console.error("Fehler beim Verlassen des Multiplayer-Spiels:", err);
+                this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht verlassen werden.");
+            }
+        }
+    }
+
+    async handleMultiplayerClick(event) {
+        const startNewGame = confirm("Willst du ein neues Multiplayer-Spiel starten?" 
+            + "Wähle 'OK' für neues Spiel oder 'Abbrechen' um einem bestehenden Spiel beizutreten.");
+        if (startNewGame) {
+            try {
+                const response = await axios.post("/api/startMultiplayer");
+                this.gameOver = false;
+                this.toggleExitMultiplayerButton(true);
+                this.showPopup("Multiplayer-Spiel gestartet. Spiel-ID: " + response.data.gameId);
+            } catch (err) {
+                console.error("Fehler beim Starten eines Multiplayer-Spiels:", err);
+                this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht gestartet werden.");
+            }
+        } else {
+            const gameId = prompt("Bitte gib die Spiel-ID ein, um beizutreten:");
+            try {
+                const response = await axios.post("/api/joinMultiplayer", { gameId });
+                this.gameOver = false;
+                this.toggleExitMultiplayerButton(true);
+                this.updateBoard(response.data.gameState.game.board.fields, 
+                    response.data.gameState.game.currentPlayer, 
+                    response.data.gameState.type);
+            } catch (err) {
+                console.error("Fehler beim Beitreten eines Multiplayer-Spiels:", err);
+                this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht beigetreten werden.");
+            }
+        }
+    }
+
+    toggleExitMultiplayerButton(show) {
+        const exitButton = document.getElementById('exit-multiplayer-btn');
+        const buttons = document.querySelectorAll('.bar .col-3, .bar .col-4');
+    
+        if (show) {
+            // Zeige den Exit Multiplayer Button an und ändere die Klassen zurück zu col-3
+            exitButton.classList.remove('hidden');
+            buttons.forEach(button => {
+                button.classList.remove('col-4');
+                button.classList.add('col-3');
+            });
+        } else {
+            // Verstecke den Exit Multiplayer Button und ändere die Klassen auf col-4
+            exitButton.classList.add('hidden');
+            buttons.forEach(button => {
+                button.classList.remove('col-3');
+                button.classList.add('col-4');
+            });
+        }
     }
 
     async handleCircleClick(event) {
