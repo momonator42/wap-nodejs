@@ -176,5 +176,5 @@ const server = http.createServer(muehleGame.app);
 muehleGame.setupSocketIO(server);
 
 server.listen(3001, '0.0.0.0', () => {
-    console.log(`Server läuft auf port: 3001`);
+    console.log(`Websocket Server läuft auf port: 3001`);
 });

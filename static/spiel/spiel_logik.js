@@ -8,27 +8,27 @@ class Game {
     }
 
     initializeSocket() {
-        const socket = io(`${window.location.hostname}:3001`, { autoConnect: false });
+        this.socket = io(`${window.location.hostname}:3001`, { autoConnect: false });
 
         // Verbindung manuell starten
-        socket.connect();
+        this.socket.connect();
 
-        socket.on('connect', () => {
+        this.socket.on('connect', () => {
             console.log("Verbunden mit WebSocket-Server");
         });
 
         // Fehlerbehandlung
-        socket.on('connect_error', (err) => {
+        this.socket.on('connect_error', (err) => {
             console.error("Verbindungsfehler:", err);
         });
 
         // Auf Nachrichten hören, um das Spielbrett zu aktualisieren
-        socket.on('updateBoard', (data) => {
+        this.socket.on('updateBoard', (data) => {
             this.updateStatus(data.message.game.currentPlayer, data.message.type);
             this.updateBoard(data.message.game.board.fields, data.message.game.currentPlayer, data.message.type);
         });
 
-        socket.on('disconnect', () => {
+        this.socket.on('disconnect', () => {
             console.log("Verbindung zum WebSocket-Server verloren");
         });
     }
@@ -36,6 +36,7 @@ class Game {
     // Schließe die WebSocket-Verbindung
     closeSocket() {
         if (this.socket) {
+            console.log("es geht hierhin!");
             this.socket.disconnect();
             this.socket = null;
             console.log("WebSocket-Verbindung geschlossen");
