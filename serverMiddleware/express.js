@@ -65,11 +65,6 @@ class MuehleGame {
         this.io.on('connection', (socket) => {
             console.log(`Neuer Client verbunden: ${socket.id}`);
 
-            socket.on('move', (data) => {
-                console.log(`Zug von Client ${socket.id}:`, data);
-                this.io.emit('updateBoard', data);
-            });
-
             socket.on('disconnect', () => {
                 console.log(`Client ${socket.id} wurde getrennt`);
             });
@@ -117,10 +112,11 @@ class MuehleGame {
     async newGame(req, res) {
         await Session.saveGameState(req.session.session, new GameState(), this.redisClient);
         const gameState = await Session.loadGameState(req.session.session, this.redisClient);
-        req.session.save(err => {
+        req.session.save(async err => {
             if (err) {
                 return res.status(500).json({ error: "Fehler beim Speichern der Session." });
             }
+            await this.notifyClients(req.session.session.gameId, gameState.currentState);
             res.json(gameState.currentState);
         });
     }

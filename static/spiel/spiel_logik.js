@@ -43,11 +43,6 @@ class Game {
         }
     }
 
-    // Beispiel einer Methode, um einen Spielzug zu senden
-    sendMove(move) {
-        this.socket.emit('move', move);
-    }
-
     async initializeGame() {
         try {
             const response = await axios.get("/api");
@@ -94,7 +89,7 @@ class Game {
     }
 
     async handleMultiplayerClick(event) {
-        const startNewGame = confirm("Willst du ein neues Multiplayer-Spiel starten?" 
+        const startNewGame = confirm("Willst du ein neues Multiplayer-Spiel starten?\n" 
             + "Wähle 'OK' für neues Spiel oder 'Abbrechen' um einem bestehenden Spiel beizutreten.");
         if (startNewGame) {
             try {
@@ -116,7 +111,8 @@ class Game {
                 this.updateBoard(response.data.gameState.game.board.fields, 
                     response.data.gameState.game.currentPlayer, 
                     response.data.gameState.type);
-                this.initializeSocket(); // WebSocket nur im Multiplayer-Modus starten    
+                this.initializeSocket(); // WebSocket nur im Multiplayer-Modus starten   
+                this.socket.emit('joinGame', gameId); 
             } catch (err) {
                 console.error("Fehler beim Beitreten eines Multiplayer-Spiels:", err);
                 this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht beigetreten werden.");
