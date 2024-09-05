@@ -1,19 +1,18 @@
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");  // socket.io
 import { GameState } from "./gameState";
 import { Session } from "./session";
 const session = require("express-session");
 const RedisStore = require("connect-redis").default;
 const { createClient } = require("redis");
-const path = require("path");
+const Multiplayer = require("./multiplayer");  // Importiere die Multiplayer-Klasse
 
 class MuehleGame {
     constructor() {
         this.redisClient;
         this.app = express();
         this.server = null;
-        this.io = null;  // socket.io
+        this.multiplayer = null;  // WebSocket-Handling
         this.setupMiddleware();
         this.setupRoutes();
     }
@@ -53,53 +52,13 @@ class MuehleGame {
         this.app.post("/api/exitMultiplayer", (req, res) => this.exitMultiplayer(req, res));
     }
 
-    setupSocketIO(server) {
-        this.io = socketIo(server, {
-            cors: {
-                origin: "*",  // Erlaube alle Ursprünge (je nach Sicherheitsanforderungen anpassen)
-                methods: ["GET", "POST"]
-            }
-        });
-
-        this.io.on('connection', (socket) => {
-            console.log(`Neuer Client verbunden: ${socket.id}`);
-
-            // Event für den Beitritt zu einem Spielraum (gameId)
-            socket.on('joinGame', (gameId) => {
-                const room = this.io.sockets.adapter.rooms.get(gameId); // Prüfe die Clients im Raum
-                
-                // Wenn der Raum bereits einen Client hat, verweigere den Beitritt
-                if (room && room.size == 2) {
-                    console.log(`Raum ${gameId} ist bereits voll. Client ${socket.id} kann nicht beitreten.`);
-                    socket.emit('roomFull', { message: 'Raum ist voll, Beitritt nicht möglich.' });
-                } else {
-                    console.log(`Client ${socket.id} tritt dem Raum ${gameId} bei.`);
-                    socket.join(gameId); // Client tritt dem Raum bei
-                    socket.emit('joinedGame', { message: 'Beitritt erfolgreich!' });
-                }
-            });
-
-            // Event für das Verlassen eines Spielers
-            socket.on('leaveGame', (gameId) => {
-                console.log(`Client ${socket.id} hat das Spiel ${gameId} verlassen.`);
-                
-                // Den Client aus dem Raum entfernen
-                socket.leave(gameId);
-
-                // Informiere alle verbleibenden Spieler im Raum
-                socket.to(gameId).emit('playerLeft', { message: `Ein Spieler hat das Spiel verlassen.` });
-            });
-
-            socket.on('disconnect', () => {
-                console.log(`Client ${socket.id} wurde getrennt`);
-            });
-        });
+    setupWebSocketServer(server) {
+        this.multiplayer = new Multiplayer(server);
     }
 
     async notifyClients(gameId, message) {
-        // Socket.io für Echtzeit-Benachrichtigung verwenden
-        if (this.io) {
-            this.io.to(gameId).emit('updateBoard', { gameId, message });
+        if (this.multiplayer) {
+            this.multiplayer.notifyClients(gameId, message);  // WebSocket-Benachrichtigung verwenden
         }
     }
 
@@ -186,16 +145,10 @@ class MuehleGame {
 // Erstelle eine Instanz von MuehleGame
 const muehleGame = new MuehleGame();
 
-// Exportiere die Middleware-Funktion
-module.exports = (req, res, next) => {
-    muehleGame.app(req, res, next);  // Verwende dieselbe Instanz von MuehleGame
+// Exportiere die Express-App
+module.exports = muehleGame.app;
+
+// Funktion, um den WebSocket-Server im Hook zu starten
+module.exports.setupWebSocketServer = (server) => {
+    muehleGame.setupWebSocketServer(server);
 };
-
-// HTTP-Server und Socket.io starten
-const server = http.createServer(muehleGame.app);
-
-muehleGame.setupSocketIO(server);
-
-server.listen(3001, '0.0.0.0', () => {
-    console.log(`Websocket Server läuft auf port: 3001`);
-});

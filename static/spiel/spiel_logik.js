@@ -1,55 +1,12 @@
+import { MultiplayerClient } from './multiplayer_clients.js';
+
 class Game {
     constructor() {
         this.gameOver = false;
-        this.socket = null;
+        this.multiplayerClient = new MultiplayerClient(this);
         this.initializeGame();
         this.bindEvents();
         this.toggleExitMultiplayerButton(false);
-    }
-
-    initializeSocket() {
-        this.socket = io(`${window.location.hostname}:3001`, { autoConnect: false });
-
-        // Verbindung manuell starten
-        this.socket.connect();
-
-        this.socket.on('connect', () => {
-            console.log("Verbunden mit WebSocket-Server");
-        });
-
-        // Fehlerbehandlung
-        this.socket.on('connect_error', (err) => {
-            console.error("Verbindungsfehler:", err);
-        });
-
-        // Auf Nachrichten hören, um das Spielbrett zu aktualisieren
-        this.socket.on('updateBoard', (data) => {
-            this.updateStatus(data.message.game.currentPlayer, data.message.type);
-            this.updateBoard(data.message.game.board.fields, data.message.game.currentPlayer, data.message.type);
-        });
-
-        this.socket.on('roomFull', (data) => {
-            this.closeSocket();
-            console.log(data.message); // Nachricht im Konsolen-Log anzeigen
-            this.showPopup(data.message); // Zeige eine Popup-Nachricht an den Benutzer
-        });
-
-        this.socket.on('playerLeft', (data) => {
-            this.showPopup(data.message); // Zeige eine Popup-Nachricht an die verbleibenden Spieler
-        });
-
-        this.socket.on('disconnect', () => {
-            console.log("Verbindung zum WebSocket-Server verloren");
-        });
-    }
-
-    // Schließe die WebSocket-Verbindung
-    closeSocket() {
-        if (this.socket) {
-            this.socket.disconnect();
-            this.socket = null;
-            console.log("WebSocket-Verbindung geschlossen");
-        }
     }
 
     async initializeGame() {
@@ -86,8 +43,8 @@ class Game {
                 const response = await axios.post("/api/exitMultiplayer");
                 this.toggleExitMultiplayerButton(false);
                 console.log("response exit: " + JSON.stringify(response.data.gameId));
-                this.socket.emit('leaveGame', response.data.gameId); // Benachrichtige den Server, dass der Spieler das Spiel verlässt
-                this.closeSocket(); // WebSocket schließen, wenn Multiplayer verlassen wird
+                this.multiplayerClient.leaveGame(response.data.gameId);  // WebSocket-Nachricht zum Verlassen senden
+                this.multiplayerClient.closeSocket();  // WebSocket schließen
                 this.showPopup(response.data.message);
                 this.updateBoard(response.data.state.currentState.game.board.fields, 
                     response.data.state.currentState.game.currentPlayer, 
@@ -108,8 +65,8 @@ class Game {
                 this.gameOver = false;
                 this.toggleExitMultiplayerButton(true);
                 this.showPopup("Multiplayer-Spiel gestartet. Spiel-ID: " + response.data.gameId);
-                this.initializeSocket(); // WebSocket nur im Multiplayer-Modus starten
-                this.socket.emit('joinGame', response.data.gameId); // Dem Spielraum beitreten
+                this.multiplayerClient.initializeSocket();  // WebSocket initialisieren
+                this.multiplayerClient.joinGame(response.data.gameId);  // Dem Spielraum beitreten
             } catch (err) {
                 console.error("Fehler beim Starten eines Multiplayer-Spiels:", err);
                 this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht gestartet werden.");
@@ -120,8 +77,8 @@ class Game {
                 return;
             }
             try {
-                this.initializeSocket(); // WebSocket nur im Multiplayer-Modus starten   
-                this.socket.emit('joinGame', gameId); // Dem Spielraum beitreten
+                this.multiplayerClient.initializeSocket();  // WebSocket initialisieren
+                this.multiplayerClient.joinGame(gameId);  // Dem Spielraum beitreten
                 const response = await axios.post("/api/joinMultiplayer", { gameId });
                 this.gameOver = false;
                 this.toggleExitMultiplayerButton(true);

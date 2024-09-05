@@ -48,5 +48,14 @@ export default {
   server: {
     host: '0.0.0.0',
     port: process.env.PORT || 3000
+  },
+
+  // Hook, um sicherzustellen, dass der WebSocket-Server startet, sobald der Nuxt.js-Server startet
+  hooks: {
+    listen(server) {
+      // Rufe die Funktion auf, die den WebSocket-Server startet
+      require('./serverMiddleware/express').setupWebSocketServer(server);
+    }
   }
+
 }
