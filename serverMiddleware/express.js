@@ -14,7 +14,6 @@ class MuehleGame {
         this.app = express();
         this.server = null;
         this.io = null;  // socket.io
-        this.clients = new Map();  // Für WebSocket-Verbindungen
         this.setupMiddleware();
         this.setupRoutes();
     }
@@ -78,6 +77,17 @@ class MuehleGame {
                     socket.join(gameId); // Client tritt dem Raum bei
                     socket.emit('joinedGame', { message: 'Beitritt erfolgreich!' });
                 }
+            });
+
+            // Event für das Verlassen eines Spielers
+            socket.on('leaveGame', (gameId) => {
+                console.log(`Client ${socket.id} hat das Spiel ${gameId} verlassen.`);
+                
+                // Den Client aus dem Raum entfernen
+                socket.leave(gameId);
+
+                // Informiere alle verbleibenden Spieler im Raum
+                socket.to(gameId).emit('playerLeft', { message: `Ein Spieler hat das Spiel verlassen.` });
             });
 
             socket.on('disconnect', () => {

@@ -34,6 +34,10 @@ class Game {
             this.showPopup(data.message); // Zeige eine Popup-Nachricht an den Benutzer
         });
 
+        this.socket.on('playerLeft', (data) => {
+            this.showPopup(data.message); // Zeige eine Popup-Nachricht an die verbleibenden Spieler
+        });
+
         this.socket.on('disconnect', () => {
             console.log("Verbindung zum WebSocket-Server verloren");
         });
@@ -81,6 +85,8 @@ class Game {
             try {
                 const response = await axios.post("/api/exitMultiplayer");
                 this.toggleExitMultiplayerButton(false);
+                console.log("response exit: " + JSON.stringify(response.data.gameId));
+                this.socket.emit('leaveGame', response.data.gameId); // Benachrichtige den Server, dass der Spieler das Spiel verlässt
                 this.closeSocket(); // WebSocket schließen, wenn Multiplayer verlassen wird
                 this.showPopup(response.data.message);
                 this.updateBoard(response.data.state.currentState.game.board.fields, 
