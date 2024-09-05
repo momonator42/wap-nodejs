@@ -65,6 +65,21 @@ class MuehleGame {
         this.io.on('connection', (socket) => {
             console.log(`Neuer Client verbunden: ${socket.id}`);
 
+            // Event für den Beitritt zu einem Spielraum (gameId)
+            socket.on('joinGame', (gameId) => {
+                const room = this.io.sockets.adapter.rooms.get(gameId); // Prüfe die Clients im Raum
+                
+                // Wenn der Raum bereits einen Client hat, verweigere den Beitritt
+                if (room && room.size == 2) {
+                    console.log(`Raum ${gameId} ist bereits voll. Client ${socket.id} kann nicht beitreten.`);
+                    socket.emit('roomFull', { message: 'Raum ist voll, Beitritt nicht möglich.' });
+                } else {
+                    console.log(`Client ${socket.id} tritt dem Raum ${gameId} bei.`);
+                    socket.join(gameId); // Client tritt dem Raum bei
+                    socket.emit('joinedGame', { message: 'Beitritt erfolgreich!' });
+                }
+            });
+
             socket.on('disconnect', () => {
                 console.log(`Client ${socket.id} wurde getrennt`);
             });
@@ -74,7 +89,7 @@ class MuehleGame {
     async notifyClients(gameId, message) {
         // Socket.io für Echtzeit-Benachrichtigung verwenden
         if (this.io) {
-            this.io.emit('updateBoard', { gameId, message });
+            this.io.to(gameId).emit('updateBoard', { gameId, message });
         }
     }
 
