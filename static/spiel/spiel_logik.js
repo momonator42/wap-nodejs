@@ -29,6 +29,7 @@ class Game {
         });
 
         this.socket.on('roomFull', (data) => {
+            this.closeSocket();
             console.log(data.message); // Nachricht im Konsolen-Log anzeigen
             this.showPopup(data.message); // Zeige eine Popup-Nachricht an den Benutzer
         });
@@ -109,6 +110,9 @@ class Game {
             }
         } else {
             const gameId = prompt("Bitte gib die Spiel-ID ein, um beizutreten:");
+            if (!gameId || gameId.trim() === "") {
+                return;
+            }
             try {
                 this.initializeSocket(); // WebSocket nur im Multiplayer-Modus starten   
                 this.socket.emit('joinGame', gameId); // Dem Spielraum beitreten
