@@ -41,8 +41,7 @@ export default {
   },
 
   serverMiddleware: [
-    { path: '/', handler: '~/serverMiddleware/express.js'},
-    { path: '/multiplayer', handler: "~/serverMiddleware/multiplayer.js"}
+    { path: '/', handler: '~/serverMiddleware/express.js'}
   ],
 
   server: {
