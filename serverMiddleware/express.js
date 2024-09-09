@@ -25,7 +25,13 @@ class MuehleGame {
                 rejectUnauthorized: false  // Akzeptiert selbstsignierte Zertifikate
             }
         });
-        this.redisClient.connect().catch(console.error);
+
+        this.redisClient.on('error', (err) => {
+            console.log("Server didn't crash!!!");
+            console.error('Redis Client Error', err);
+        });
+
+        this.redisClient.connect();
 
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
