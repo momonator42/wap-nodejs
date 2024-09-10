@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@nuxtjs/vuetify": "^1.12.3",
     "axios": "^1.7.5",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",

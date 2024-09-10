@@ -1,13 +1,13 @@
 <template>
   <div>
-
+    
   </div>
 </template>
 
 <script>
-  export default {
-    mounted() {
-      window.location.href="index.html"
-    }
+export default {
+  mounted() {
+    this.$router.push('/start'); //window.location.href="start.html"
   }
+}
 </script>
