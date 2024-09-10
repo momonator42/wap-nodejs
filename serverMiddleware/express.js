@@ -26,12 +26,35 @@ class MuehleGame {
             }
         });
 
+        // Subscriber client for Pub/Sub
+        this.redisSubscriber = createClient({
+            url: process.env.REDIS_TLS_URL,
+            socket: {
+                tls: true,
+                rejectUnauthorized: false
+            }
+        });
+
         this.redisClient.on('error', (err) => {
             console.log("Server didn't crash!!!");
             console.error('Redis Client Error', err);
         });
 
+        this.redisSubscriber.on('error', (err) => {
+            console.error('Redis Subscriber Error', err);
+        });
+
         this.redisClient.connect();
+        this.redisSubscriber.connect();
+
+        // Handle incoming messages on subscribed channels
+        this.redisSubscriber.subscribe('gameUpdates', (message) => {
+            const parsedMessage = JSON.parse(message);
+            // Notify WebSocket clients with the message
+            if (this.multiplayer) {
+                this.multiplayer.broadcastMessage(parsedMessage.gameId, parsedMessage.message);
+            }
+        });
 
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
@@ -66,6 +89,9 @@ class MuehleGame {
         if (this.multiplayer) {
             this.multiplayer.notifyClients(gameId, message);  // WebSocket-Benachrichtigung verwenden
         }
+
+        // Publish message to Redis Pub/Sub
+        await this.redisClient.publish('gameUpdates', JSON.stringify({ gameId, message }));
     }
 
     async startMultiplayerGame(req, res) {
@@ -90,12 +116,12 @@ class MuehleGame {
     }
 
     async exitMultiplayer(req, res) {
-        const result = await Session.endMultiplayerGame(req.session.session, this.redisClient);
+        const { oldGameId, result } = await Session.endMultiplayerGame(req.session.session, this.redisClient);
         req.session.save(err => {
             if (err) {
                 return res.status(500).json({ error: "Fehler beim Verlassen des Multiplayer-Spiels." });
             }
-            res.json({ message: "Sitzung verlassen!", state: result });
+            res.json({ message: "Sitzung verlassen!", state: result, gameId: oldGameId});
         });
     }
 

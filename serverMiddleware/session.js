@@ -14,10 +14,12 @@ export class Session {
     }
 
     static async endMultiplayerGame(session, redisClient) {
+        const oldGameId = session.gameId;
         session.name = null;
         session.gameId = `game:${uuidv4()}`;
         await Session.saveGameState(session, new GameState(), redisClient);
-        return await Session.loadGameState(session, redisClient);
+        const result = await Session.loadGameState(session, redisClient);
+        return { oldGameId, result };
     }
 
     static async joinMultiplayerGame(session, redisClient, game) {
@@ -56,6 +58,7 @@ export class Session {
             const gameState = JSON.parse(jsonString);
             return gameState;
         } catch (error) {
+            console.log("session id: " + session.gameId);
             console.error('Fehler beim Laden des Spielzustands:', error);
         }
     }
