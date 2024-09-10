@@ -66,7 +66,7 @@ class Game {
                 this.toggleExitMultiplayerButton(true);
                 this.showPopup("Multiplayer-Spiel gestartet. Spiel-ID: " + response.data.gameId);
                 this.multiplayerClient.initializeSocket();  // WebSocket initialisieren
-                this.multiplayerClient.joinGame(response.data.gameId);  // Dem Spielraum beitreten
+                this.multiplayerClient.joinGame(response.data.gameId, false);  // Dem Spielraum beitreten
             } catch (err) {
                 console.error("Fehler beim Starten eines Multiplayer-Spiels:", err);
                 this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht gestartet werden.");
@@ -78,7 +78,7 @@ class Game {
             }
             try {
                 this.multiplayerClient.initializeSocket();  // WebSocket initialisieren
-                this.multiplayerClient.joinGame(gameId);  // Dem Spielraum beitreten
+                this.multiplayerClient.joinGame(gameId, true);  // Dem Spielraum beitreten
                 const response = await axios.post("/api/joinMultiplayer", { gameId });
                 this.gameOver = false;
                 this.toggleExitMultiplayerButton(true);

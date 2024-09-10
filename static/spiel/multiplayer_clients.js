@@ -24,6 +24,11 @@ export class MultiplayerClient {
             this.game.updateBoard(data.message.game.board.fields, data.message.game.currentPlayer, data.message.type);
         });
 
+        this.socket.on('joinedGame', (data) => {
+            this.game.hidePopup();
+            this.game.showPopup(data.message);
+        })
+
         this.socket.on('roomFull', (data) => {
             this.closeSocket();
             console.log(data.message);  // Nachricht im Konsolen-Log anzeigen
@@ -40,8 +45,8 @@ export class MultiplayerClient {
     }
 
     // Dem Spielraum beitreten
-    joinGame(gameId) {
-        this.socket.emit('joinGame', gameId);
+    joinGame(gameId, enemy) {
+        this.socket.emit('joinGame', gameId, enemy);
     }
 
     // Das Spiel verlassen

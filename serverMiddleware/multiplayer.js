@@ -17,7 +17,7 @@ class Multiplayer {
             console.log(`Neuer Client verbunden: ${socket.id}`);
 
             // Event für den Beitritt zu einem Spielraum (gameId)
-            socket.on('joinGame', (gameId) => {
+            socket.on('joinGame', (gameId, enemy) => {
                 const room = this.io.sockets.adapter.rooms.get(gameId); // Prüfe die Clients im Raum
 
                 // Wenn der Raum bereits einen Client hat, verweigere den Beitritt
@@ -27,7 +27,9 @@ class Multiplayer {
                 } else {
                     console.log(`Client ${socket.id} tritt dem Raum ${gameId} bei.`);
                     socket.join(gameId); // Client tritt dem Raum bei
-                    socket.emit('joinedGame', { message: 'Beitritt erfolgreich!' });
+                    if (enemy) {
+                        socket.to(gameId).emit('joinedGame', { message: 'Gegner ist beigetreten!' });
+                    }
                 }
             });
 
