@@ -41,7 +41,7 @@ class Multiplayer {
                 socket.leave(gameId);
 
                 // Informiere alle verbleibenden Spieler im Raum
-                socket.to(gameId).emit('playerLeft', { message: `Ein Spieler hat das Spiel verlassen.` });
+                socket.to(gameId).emit('playerLeft', { message: `Der Spieler hat das Spiel verlassen.` });
             });
 
             socket.on('disconnect', () => {
@@ -55,6 +55,10 @@ class Multiplayer {
         if (this.io) {
             this.io.to(gameId).emit('updateBoard', { gameId, message });
         }
+    }
+
+    broadcastMessage(gameId, message) {
+        this.io.to(gameId).emit('updateBoard', { gameId, message });  // Broadcast message to all clients
     }
 }
 
