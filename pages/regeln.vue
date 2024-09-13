@@ -71,25 +71,11 @@
 </template>
   
 <script>
-  export default {
-    name: "RegelnPage",
-  };
+export default {
+  name: "RegelnPage",
+};
+
 </script>
-  
-<style scoped>
-  .fill-height {
-    min-height: 100vh;
-  }
-  
-  /* Schriftarten global */
-  .v-card-title,
-  .v-card-subtitle,
-  .v-card-text {
-    color: #000;
-  }
-  
-  .v-card-title {
-    font-weight: bold;
-  }
-</style>
+
+<style scoped src="./assets/regeln.css"></style>
   
