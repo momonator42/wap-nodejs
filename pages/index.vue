@@ -49,4 +49,73 @@ export default {
 };
 </script>
 
-<style scoped src="./assets/index.css"></style>
+<style scoped>
+  .page-container {
+      background-image: url('./assets/egyptian-background.jpg');
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 50px;
+  }
+
+  .svg-container {
+      margin-bottom: 20px;
+      background-color: white;
+      padding: 10px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 30vw;
+      height: 30vw;
+      max-width: 25vh;
+      max-height: 25vh;
+  }
+
+  .arial-text {
+      font-family: Arial, sans-serif !important;
+  }
+
+  .container {
+      text-align: center;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 50vh;
+      margin-top: 20px;
+  }
+
+  h1 {
+      font-size: clamp(1.2rem, 5vw, 2rem);
+      margin-bottom: 20px;
+  }
+
+  .play-link {
+      display: inline-block;
+      margin: 10px;
+  }
+
+  .play-button {
+      background-color: #007bff;
+      border: none;
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+  }
+
+  .play-button i {
+      font-size: 48px;
+      color: #000;
+  }
+
+  .play-button:hover {
+      transform: scale(1.1);
+  }
+</style>

@@ -1,6 +1,6 @@
 <template>
     <v-app>
-      <v-container fluid class="fill-height pa-0" style="background-color: #e3f2fd;">
+      <v-container fluid class="fill-height pa-0 page-container" style="background-color: #e3f2fd;">
         <v-row class="justify-center align-center fill-height">
           <v-col cols="12" md="8">
             <!-- Titel -->
@@ -77,5 +77,27 @@ export default {
 
 </script>
 
-<style scoped src="./assets/regeln.css"></style>
+<style scoped>
+  .page-container {
+    background-image: url('./assets/egyptian-background.jpg');
+  }
+
+  .fill-height {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      justify-content: space-between;
+  }
+    
+    /* Schriftarten global */
+    .v-card-title,
+    .v-card-subtitle,
+    .v-card-text {
+      color: #000;
+  }
+    
+  .v-card-title {
+      font-weight: bold;
+  }
+</style>
   

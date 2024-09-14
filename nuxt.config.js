@@ -14,6 +14,12 @@ export default {
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       { rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css' }
+    ],
+    script: [
+      {
+        src: 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js',
+        type: 'text/javascript'
+      }
     ]
   },
 

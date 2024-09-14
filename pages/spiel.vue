@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="pa-0 ma-0 fill-height">
+  <v-container fluid class="pa-0 ma-0 fill-height body">
     <v-row no-gutters>
       <v-navigation-drawer
         v-if="$vuetify.breakpoint.mdAndUp"
@@ -27,14 +27,44 @@
         </v-list>
       </v-navigation-drawer>
 
-      <!-- App-Bar für kleinere Bildschirme -->
-      <v-app-bar v-else app color="rgba(230, 240, 243, 0.8)" dense>
-        <v-spacer></v-spacer>
-        <v-btn small color="secondary" class="black-text arial-text" @click="$router.push('/')">&#8592; Zurück</v-btn>
-        <v-btn small color="primary" class="black-text arial-text" @click="handleNewGameClick">Neues Spiel</v-btn>
-        <v-btn small color="success" class="black-text arial-text" @click="handleMultiplayerClick">Mehrspieler</v-btn>
-        <v-btn small color="error" class="black-text arial-text" v-show="showExitButton" @click="handleExitMultiplayerClick">verlassen</v-btn>
-        <v-spacer></v-spacer>
+      <v-app-bar 
+        v-else 
+        app 
+        :height="showExitButton ? '120px' : '60px'" 
+        color="rgba(230, 240, 243, 0.8)" 
+        dense 
+        flat 
+        class="d-flex flex-column align-start"
+      >
+        <!-- Erste Zeile: Zurück, Neues Spiel, Mehrspieler -->
+        <v-row no-gutters class="d-flex justify-start" style="width: 100%;">
+          <v-col cols="auto">
+            <v-btn small color="secondary" class="black-text arial-text" @click="$router.push('/')">
+              &#8592; Zurück
+            </v-btn>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn small color="primary" class="black-text arial-text" @click="handleNewGameClick">
+              Neues Spiel
+            </v-btn>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn small color="success" class="black-text arial-text" @click="handleMultiplayerClick">
+              Mehrspieler
+            </v-btn>
+          </v-col>
+        </v-row>
+
+        <!-- Zweite Zeile: Verlassen-Button -->
+        <v-row no-gutters class="d-flex mt-8" style="width: 100%;" v-if="showExitButton">
+          <v-spacer></v-spacer>
+          <v-col cols="auto" class="text-center">
+            <v-btn small color="error" class="black-text arial-text" @click="handleExitMultiplayerClick">
+              verlassen
+            </v-btn>
+          </v-col>
+        </v-row>
+
       </v-app-bar>
 
       <!-- Spielfeld -->
@@ -91,8 +121,8 @@
     <!-- Popup für Nachrichten -->
     <div id="custom-popup" class="popup" v-if="isPopUpVisible">
       <div class="popup-content">
-        <v-btn icon small id="popup-close" class="popup-close" color="white" @click="hidePopup">
-          &times; <!-- Stelle sicher, dass das Icon auch weiß ist -->
+        <v-btn icon small id="popup-close" class="popup-close" @click="hidePopup">
+          <v-icon color="white" style="font-size: 24px;">mdi-close</v-icon>
         </v-btn>
         <p class="arial-text">{{ popupMessage }}</p>
       </div>
@@ -101,7 +131,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import { MultiplayerClient } from '../static/spiel/multiplayer_clients';
 
 export default {
@@ -277,4 +306,257 @@ export default {
 };
 </script>
 
-<style src="./assets/styles.css"></style>
+<style scoped>
+  .body {
+      background-image: url('./assets/egyptian-background.jpg');
+      background-size: cover;
+      background-repeat: no-repeat; 
+      background-position: center center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 105vh;
+  }
+
+  .black-text {
+      color: black !important;
+  }
+
+  .arial-text {
+      font-family: Arial, sans-serif !important;
+  }
+
+  .background {
+      position: relative;
+      width: 90vw;
+      height: 95vw;
+      max-width: 95vh;
+      max-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+      background-color: rgba(230, 240, 243, 0.8);
+      border-radius: 20px;
+  }
+
+  #rand {
+      position: relative;
+      width: 80vw;
+      height: 80vw;
+      max-width: 80vh;
+      max-height: 80vh;
+      border: 5px solid #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+      background-color: brown;
+      transform: translateY(5%);
+  }
+
+  #board {
+      position: relative;
+      width: 67vw;
+      height: 67vw;
+      max-width: 67vh;
+      max-height: 67vh;
+      border: 5px solid #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+  }
+
+  .ring1 {
+      position: relative;
+      width: 50vw;
+      height: 50vw;
+      max-width: 50vh;
+      max-height: 50vh;
+      border: 5px solid #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+
+  .ring2 {
+      position: relative;
+      width: 30vw;
+      height: 30vw;
+      max-width: 30vh;
+      max-height: 30vh;
+      border: 5px solid #000;
+      background-color: brown;
+  }
+
+  .line {
+      position: absolute;
+      background-color: #000;
+  }
+
+  .horizontal {
+      width: 100%;
+      height: 5px;
+  }
+
+  .vertical {
+      width: 5px;
+      height: 100%;
+  }
+
+  .line1 { top: 50.00%; left: 0; }
+
+  .line2 { top: 0; left: 50.00%; }
+
+  .circle {
+      position: absolute;
+      width: 3vw;
+      height: 3vw;
+      max-width: 40px;
+      max-height: 40px;
+      min-width: 25px;
+      min-height: 25px;
+      background-color: black; 
+      border-radius: 50%; 
+  }
+
+  .circle:hover {
+      width: 4vw;
+      height: 4vw;
+  }
+
+  .top-left {
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+  }
+
+  .top-right {
+      top: 0;
+      right: 0;
+      transform: translate(50%, -50%);
+  }
+
+  .bottom-left {
+      bottom: 0;
+      left: 0;
+      transform: translate(-50%, 50%);
+  }
+
+  .bottom-right {
+      bottom: 0;
+      right: 0;
+      transform: translate(50%, 50%);
+  }
+
+  .center-left {
+      top: 50%;
+      left: 0;
+      transform: translate(-50%, -50%);
+  }
+
+  .center-right {
+      top: 50%;
+      right: 0;
+      transform: translate(50%, -50%);
+  }
+
+  .top-center {
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+  }
+
+  .bottom-center {
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 50%);
+  }
+
+  .text-center h2 {
+      position: absolute;
+      color: black;
+      font-weight: bold;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+  }
+
+  @media (max-width: 576px) {
+      /* Für kleine Bildschirme (wie Mobilgeräte) */
+      .text-center h2 {
+          top: 6%;
+          font-size: 15px;
+      }
+  }
+
+  @media (min-width: 577px) and (max-width: 768px) {
+      /* Für mittelgroße Bildschirme (wie kleine Tablets) */
+      .text-center h2 {
+          top: 6%;
+          font-size: 22px;
+      }
+  }
+
+  @media (min-width: 769px) and (max-width: 992px) {
+      /* Für größere Tablets und kleine Desktops */
+      .text-center h2 {
+          top: 6%;
+          font-size: 32px;
+      }
+  }
+
+  @media (min-width: 993px) {
+      /* Für große Bildschirme (wie Desktop-Monitore) */
+      .text-center h2 {
+          top: 7%;
+          font-size: 32px;
+      }
+  }
+
+  .hidden {
+      visibility: hidden;
+  }
+
+  .hiddenButton {
+      display: None;
+  }
+
+  .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+
+  .popup-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      font-size: 25px;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 32px;
+      cursor: pointer;
+      color: #fff; 
+      font-weight: bold; 
+      background: none; 
+      border: none; 
+      outline: none; 
+  }
+</style>
