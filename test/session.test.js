@@ -23,22 +23,56 @@ describe("Session", () => {
     })
 
     it('should initialize a Session', async () => {
+        let session = new Session();
+        expect(session.name).toEqual(null);
+    });
 
-        let gameState = new GameState();
-        let session = new Session(redisClient);
-        await Session.saveGameState(session, gameState, redisClient);
-        const result = await Session.loadGameState(session, redisClient);
+    it('should start the multiplayer', async () => {
+        let session = new Session();
+        let result = await Session.startMultiplayerGame(session, redisClient);
 
-        let code = await GameState.playMove(gameState, { x: 0, y: 0, ring: 0 });
+        expect(session.name).toEqual("PlayerOne");
+    });
+
+    it('should end the multiplayer', async () => {
+        let session = new Session();
+        let result = await Session.endMultiplayerGame(session, redisClient);
+
+        expect(session.name).toEqual(null);
+    });
+
+    it('should join the multiplayer', async () => {
+        let sessionPlayerOne = new Session();
+        await Session.startMultiplayerGame(sessionPlayerOne, redisClient);
+
+        let sessionPlayerTwo = new Session();
+
+        let result = await Session.joinMultiplayerGame(sessionPlayerTwo, redisClient, sessionPlayerOne.gameId);
+
+        expect(sessionPlayerOne.name).toEqual("PlayerOne");
+        expect(sessionPlayerTwo.name).toEqual("PlayerTwo");
+        expect(sessionPlayerOne.gameId).toEqual(sessionPlayerTwo.gameId);
+    });
+
+    it('should make some moves', async () => {
+        let session = new Session();
+
+        await Session.saveGameState(session, new GameState(), redisClient);
+        
+        let code = await Session.playMove(session, redisClient, { x: 0, y: 0, ring: 0 });
         expect(code).toEqual(200);
     });
 
+    it('should make a wrong move', async () => {
+        let sessionPlayerOne = new Session();
+        await Session.startMultiplayerGame(sessionPlayerOne, redisClient);
 
+        let sessionPlayerTwo = new Session();
 
-    it('should make some moves', async () => {
-        let session = new Session(redisClient);
+        let result = await Session.joinMultiplayerGame(sessionPlayerTwo, redisClient, sessionPlayerOne.gameId);
         
-        let code = await Session.playMove(session, redisClient, { x: 0, y: 0, ring: 0 });
+        let code = await Session.playMove(sessionPlayerTwo, redisClient, { x: 0, y: 0, ring: 0 });
+        expect(code).toEqual(401);
     });
 
     

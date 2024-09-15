@@ -19,7 +19,6 @@ module.exports = {
   collectCoverageFrom: [
     //'<rootDir>/components/**/*.vue',
     //'<rootDir>/pages/**/*.vue'
-    '<rootDir>/static/**/*.js',
     '<rootDir>/serverMiddleware/**/*.js'
   ],
   testEnvironment: 'node'
