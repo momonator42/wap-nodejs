@@ -58,7 +58,7 @@ export class Session {
             const gameState = JSON.parse(jsonString);
             return gameState;
         } catch (error) {
-            console.log("session id: " + session.gameId);
+            console.log("session id: " + JSON.stringify(session.gameId));
             console.error('Fehler beim Laden des Spielzustands:', error);
         }
     }
