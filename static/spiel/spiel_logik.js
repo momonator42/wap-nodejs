@@ -140,8 +140,7 @@ class Game {
             } else if (response.data.message === "Das Spiel ist beendet.") {
                 const selector = `.circle[data-position='${move.ring}-${move.x}-${move.y}']`;
                 document.querySelector(selector).style.backgroundColor = "black";
-                document.querySelector("h2").innerHTML = `Game Over`;
-                this.gameOver = true;
+                this.updateGameOver(`Game Over`);
             } else {
                 console.log("Board update not required.");
             }
@@ -162,6 +161,11 @@ class Game {
             console.error("Error starting new game:", err);
             this.showPopup("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
         }
+    }
+
+    updateGameOver(gameState) {
+        document.querySelector("h2").innerHTML = gameState;
+        this.gameOver = true;
     }
 
     updateStatus(currentPlayer, gameState) {
