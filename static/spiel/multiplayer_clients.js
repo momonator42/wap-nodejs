@@ -20,7 +20,10 @@ export class MultiplayerClient {
 
         // Nachrichten vom Server empfangen und das Spiel aktualisieren
         this.socket.on('updateBoard', (data) => {
-            console.log("DATA: " + JSON.stringify(data));
+            if (data.message.message === "Das Spiel ist beendet.") {
+                this.game.updateGameOver(`Game Over`);
+                return;
+            }
             this.game.updateStatus(data.message.game.currentPlayer, data.message.type);
             this.game.updateBoard(data.message.game.board.fields, data.message.game.currentPlayer, data.message.type);
         });

@@ -246,8 +246,7 @@ export default {
         if (response.data.game?.board?.fields && response.data.message !== "Move gespeichert, Shift erwartet.") {
           this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
         } else if (response.data.message === "Das Spiel ist beendet.") {
-          this.gameOver = true;
-          this.statusMessage = `Game Over`;
+          this.updateGameOver(`Game Over`);
         }
       } catch (err) {
         console.error("Fehler beim Ausführen des Zugs:", err);
@@ -267,6 +266,10 @@ export default {
       }
     },
     
+    updateGameOver(gameState) {
+      this.gameOver = true;
+      this.statusMessage = gameState;
+    },
 
     updateStatus(currentPlayer, gameState) {
       this.statusMessage = `Current Player: ${currentPlayer.color} <br> State: ${gameState}`;
