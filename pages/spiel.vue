@@ -30,41 +30,35 @@
       <v-app-bar 
         v-else 
         app 
-        :height="showExitButton ? '120px' : '60px'" 
+        height="60px"
         color="rgba(230, 240, 243, 0.8)" 
         dense 
         flat 
-        class="d-flex flex-column align-start"
+        class="d-flex align-center"
       >
-        <!-- Erste Zeile: Zurück, Neues Spiel, Mehrspieler -->
-        <v-row no-gutters class="d-flex justify-start" style="width: 100%;">
-          <v-col cols="auto">
+        <v-row no-gutters class="d-flex align-center" style="width: 100%;">
+          <!-- Linke Seite: Zurück -->
+          <v-col cols="auto" class="d-flex justify-start">
             <v-btn small color="secondary" class="black-text arial-text" @click="$router.push('/')">
               &#8592; Zurück
             </v-btn>
           </v-col>
-          <v-col cols="auto">
+
+          <!-- Mitte: Neues Spiel -->
+          <v-col cols="auto" class="d-flex justify-center">
             <v-btn small color="primary" class="black-text arial-text" @click="handleNewGameClick">
               Neues Spiel
             </v-btn>
           </v-col>
-          <v-col cols="auto">
+
+          <!-- Rechte Seite: Mehrspieler -->
+          <v-col cols="auto" class="d-flex justify-end">
             <v-btn small color="success" class="black-text arial-text" @click="handleMultiplayerClick">
               Mehrspieler
             </v-btn>
           </v-col>
         </v-row>
-
-        <!-- Zweite Zeile: Verlassen-Button -->
-        <v-row no-gutters class="d-flex mt-8" style="width: 100%;" v-if="showExitButton">
-          <v-spacer></v-spacer>
-          <v-col cols="auto" class="text-center">
-            <v-btn small color="error" class="black-text arial-text" @click="handleExitMultiplayerClick">
-              verlassen
-            </v-btn>
-          </v-col>
-        </v-row>
-
+        
       </v-app-bar>
 
       <!-- Spielfeld -->
@@ -127,6 +121,29 @@
         <p class="arial-text">{{ popupMessage }}</p>
       </div>
     </div>
+
+    <v-app-bar 
+      v-if="showExitButton"
+      app
+      color="rgba(230, 240, 243, 0.8)"
+      dense
+      flat
+      class="d-flex justify-center align-center"
+      fixed
+      bottom
+    >
+      <!-- Verlassen-Button unterhalb des Spielfelds -->
+      <v-row no-gutters class="d-flex mt-4" style="width: 100%;" v-if="showExitButton">
+        <v-spacer></v-spacer>
+        <v-col cols="auto" class="text-center">
+          <v-btn small color="error" class="black-text arial-text" @click="handleExitMultiplayerClick">
+            verlassen
+          </v-btn>
+        </v-col>
+        <v-spacer></v-spacer>
+      </v-row>
+    </v-app-bar>
+    
   </v-container>
 </template>
 
