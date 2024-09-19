@@ -54,8 +54,36 @@ export default {
     },
     workbox: {
       offline: true, // Aktiviert die Offline-Unterstützung
-      offlinePage: '/offline.html', // Verweist auf die Offline-Seite
-      cachingExtensions: '@/plugins/workbox-cache.js',
+      offlinePage: '/offline', // Verweist auf die Offline-Seite
+      runtimeCaching: [
+        {
+          urlPattern: /\/.*/, // Fängt alle Routen ab (inklusive deiner APIs)
+          handler: 'NetworkFirst', // Versucht zuerst, die Daten aus dem Netzwerk zu laden, cached sie aber auch
+          method: 'GET', // Gilt für alle GET-Anfragen (z. B. statische Ressourcen)
+          options: {
+            networkTimeoutSeconds: 10, // Netzwerk-Timeout auf 10 Sekunden setzen
+            cacheableResponse: {
+              statuses: [0, 200], // Speichert nur 200er-Antworten im Cache
+            },
+          },
+        },
+        {
+          urlPattern: /\/api\/.*/, // Fängt alle API-Routen ab, die POST-Requests verwenden
+          handler: 'NetworkOnly', // POST-Anfragen gehen nur über das Netzwerk, kein Caching
+          method: 'POST', // Nur POST-Anfragen
+          options: {
+            networkTimeoutSeconds: 10, // Netzwerk-Timeout auf 10 Sekunden setzen
+            plugins: [
+              {
+                fetchDidFail: async () => {
+                  // Bei Netzwerkausfall auf die offline.vue umleiten
+                  return await caches.match('/offline');
+                },
+              },
+            ],
+          },
+        },
+      ],
     },
   },
 
