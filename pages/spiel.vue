@@ -203,8 +203,12 @@ export default {
                 this.multiplayerClient.initializeSocket();  // WebSocket initialisieren
                 this.multiplayerClient.joinGame(response.data.gameId, false);  // Dem Spielraum beitreten
             } catch (err) {
+              if (err.response) {
                 console.error("Fehler beim Starten eines Multiplayer-Spiels:", err);
                 this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht gestartet werden.");
+              } else {
+                this.showPopup("Du bist offline");
+              }
             }
         } else {
             const gameId = prompt("Bitte gib die Spiel-ID ein, um beizutreten:");
@@ -221,8 +225,12 @@ export default {
                     response.data.gameState.game.currentPlayer, 
                     response.data.gameState.type);
             } catch (err) {
+              if (err.response) {
                 console.error("Fehler beim Beitreten eines Multiplayer-Spiels:", err);
                 this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht beigetreten werden.");
+              } else {
+                this.showPopup("Du bist offline");
+              }
             }
         }
     },
@@ -241,8 +249,12 @@ export default {
                     response.data.state.currentState.game.currentPlayer, 
                     response.data.state.currentState.type);
             } catch (err) {
+              if (err.response) {
                 console.error("Fehler beim Verlassen des Multiplayer-Spiels:", err);
                 this.showPopup("Ein Fehler ist aufgetreten. Multiplayer-Spiel konnte nicht verlassen werden.");
+              } else {
+                this.showPopup("Du bist offline");
+              }
             }
         }
     },
@@ -266,8 +278,12 @@ export default {
           this.updateGameOver(`Game Over`);
         }
       } catch (err) {
-        console.error("Fehler beim Ausführen des Zugs:", err);
-        this.showPopup(err.response?.data?.error || "Ein Fehler ist aufgetreten.");
+        if (err.response) {
+          console.error("Fehler beim Ausführen des Zugs:", err);
+          this.showPopup(err.response?.data?.error || "Ein Fehler ist aufgetreten.");
+        } else {
+          this.showPopup("Du bist offline");
+        }
       }
     },
 
@@ -278,8 +294,12 @@ export default {
             console.log("New game started:", response.data);
             this.updateBoard(response.data.game.board.fields, response.data.game.currentPlayer, response.data.type);
       } catch (err) {
-            console.error("Error starting new game:", err);
-            this.showPopup("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
+            if (err.response) {
+              console.error("Error starting new game:", err);
+              this.showPopup("Ein Fehler ist aufgetreten. Neues Spiel konnte nicht gestartet werden.");
+            } else {
+              this.showPopup("Du bist offline");
+            }
       }
     },
     

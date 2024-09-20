@@ -65,19 +65,11 @@ export default {
             cacheableResponse: {
               statuses: [0, 200], // Speichert nur 200er-Antworten im Cache
             },
-          },
-        },
-        {
-          urlPattern: /\/api\/.*/, // Fängt alle API-Routen ab, die POST-Requests verwenden
-          handler: 'NetworkOnly', // POST-Anfragen gehen nur über das Netzwerk, kein Caching
-          method: 'POST', // Nur POST-Anfragen
-          options: {
-            networkTimeoutSeconds: 10, // Netzwerk-Timeout auf 10 Sekunden setzen
             plugins: [
               {
                 fetchDidFail: async () => {
-                  // Bei Netzwerkausfall auf die offline.vue umleiten
-                  return await caches.match('/offline');
+                  // Bei Netzwerkausfall auf die Offline-Seite umleiten
+                  return await caches.match('/offline'); 
                 },
               },
             ],
