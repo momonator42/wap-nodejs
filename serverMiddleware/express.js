@@ -51,7 +51,7 @@ class MuehleGame {
         this.redisSubscriber.subscribe('gameUpdates', (message) => {
             const parsedMessage = JSON.parse(message);
             
-            this.multiplayer.broadcastMessage(parsedMessage.gameId, parsedMessage.message);
+            this.multiplayer.notifyClients(parsedMessage.gameId, parsedMessage.message);
         });
 
         this.app.use(express.json());
