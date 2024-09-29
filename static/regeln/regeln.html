@@ -7,86 +7,111 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
+    <header>
+        <nav aria-label="Hauptnavigation">
+            <ul class="sr-only">
+                <li><a href="#">Startseite</a></li>
+                <li><a href="#">Regeln</a></li>
+                <li><a href="#">Spielstrategien</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Regeln für das Mühlespiel</h1>
+    <main role="main" class="container mt-5">
+        <h1 id="main-title" class="text-center mb-4">Regeln für das Mühlespiel</h1>
 
-        <section>
-            <h2 class="text-primary">Einführung</h2>
+        <!-- Einführung Abschnitt -->
+        <section aria-labelledby="introduction-heading">
+            <h2 id="introduction-heading" class="text-primary">Einführung</h2>
             <p>Das Mühlespiel ist ein traditionelles Brettspiel, das von zwei Spielern gespielt wird. Ziel des Spiels ist es, so viele gegnerische Steine wie möglich zu schlagen, indem man Mühlen bildet.</p>
         </section>
 
-        <section class="mt-4">
-            <h2 class="text-primary">Spielmaterial</h2>
-            <ul class="list-group">
+        <!-- Spielmaterial Abschnitt -->
+        <section aria-labelledby="materials-heading" class="mt-4">
+            <h2 id="materials-heading" class="text-primary">Spielmaterial</h2>
+            <ul class="list-group" aria-label="Liste des Spielmaterials">
                 <li class="list-group-item">Ein Mühlespielbrett mit 24 Punkten.</li>
                 <li class="list-group-item">9 weiße und 9 schwarze Steine.</li>
             </ul>
         </section>
 
-        <section class="mt-4">
-            <h2 class="text-primary">Spielablauf</h2>
-            
-            <div class="card mb-3">
-                <div class="card-header bg-secondary text-white">Phase 1: Setzphase</div>
+        <!-- Spielablauf Abschnitt -->
+        <section aria-labelledby="gameplay-heading" class="mt-4">
+            <h2 id="gameplay-heading" class="text-primary">Spielablauf</h2>
+
+            <!-- Phase 1: Setzphase -->
+            <article aria-labelledby="phase1-heading" class="card mb-3">
+                <div class="card-header bg-secondary text-white" id="phase1-heading">Phase 1: Setzphase</div>
                 <div class="card-body">
                     <p class="card-text">Die Spieler setzen abwechselnd ihre Steine auf die freien Schnittpunkte des Brettes. Wenn ein Spieler dabei eine Mühle bildet (drei eigene Steine in einer Reihe), darf er einen gegnerischen Stein entfernen.</p>
                 </div>
-            </div>
+            </article>
 
-            <div class="card mb-3">
-                <div class="card-header bg-secondary text-white">Phase 2: Zugphase</div>
+            <!-- Phase 2: Zugphase -->
+            <article aria-labelledby="phase2-heading" class="card mb-3">
+                <div class="card-header bg-secondary text-white" id="phase2-heading">Phase 2: Zugphase</div>
                 <div class="card-body">
                     <p class="card-text">Nachdem alle Steine gesetzt sind, ziehen die Spieler abwechselnd. Ein Stein darf entlang der Linien zu einem benachbarten freien Punkt gezogen werden. Bildet ein Spieler eine Mühle, darf er wieder einen gegnerischen Stein entfernen.</p>
                 </div>
-            </div>
+            </article>
 
-            <div class="card mb-3">
-                <div class="card-header bg-secondary text-white">Phase 3: Endphase</div>
+            <!-- Phase 3: Endphase -->
+            <article aria-labelledby="phase3-heading" class="card mb-3">
+                <div class="card-header bg-secondary text-white" id="phase3-heading">Phase 3: Endphase</div>
                 <div class="card-body">
                     <p class="card-text">Hat ein Spieler nur noch drei Steine, darf er springen: Ein Stein darf zu jedem beliebigen freien Punkt gezogen werden. Das Spiel endet, wenn ein Spieler nur noch zwei Steine hat oder keinen gültigen Zug mehr machen kann.</p>
                 </div>
-            </div>
+            </article>
         </section>
 
-        <section class="mt-4">
-            <h2 class="text-primary">Regeln im Detail</h2>
-            
-            <h3 class="text-info">Mühlen</h3>
-            <blockquote class="blockquote">
-                <p>Eine Mühle besteht aus drei Steinen gleicher Farbe in einer durchgehenden Linie.</p>
-            </blockquote>
-            <p>Beispiel: <code>Stein1 - Stein2 - Stein3</code></p>
-            
-            <h3 class="text-info mt-3">Steine Entfernen</h3>
-            <p>Wenn eine Mühle gebildet wird, darf ein beliebiger gegnerischer Stein entfernt werden, außer dieser ist Teil einer eigenen Mühle und es gibt andere Steine, die nicht in einer Mühle sind.</p>
-            
-            <h3 class="text-info mt-3">Spezielle Situationen</h3>
-            <ul class="list-group">
-                <li class="list-group-item">Ein Spieler darf keine eigenen Steine entfernen.</li>
-                <li class="list-group-item">Es ist nicht erlaubt, die gleiche Mühle durch Rückkehr zum vorherigen Zustand mehrfach zu verwenden, um mehrere Steine zu entfernen.</li>
-            </ul>
-            
-            <h3 class="text-info mt-3">Spielende</h3>
-            <ol class="list-group list-group-numbered">
-                <li class="list-group-item">Ein Spieler hat weniger als drei Steine.</li>
-                <li class="list-group-item">Ein Spieler kann keinen gültigen Zug mehr machen.</li>
-            </ol>
+        <!-- Regeln im Detail -->
+        <section aria-labelledby="details-heading" class="mt-4">
+            <h2 id="details-heading" class="text-primary">Regeln im Detail</h2>
+
+            <article aria-labelledby="muehle-heading">
+                <h3 id="muehle-heading" class="text-info">Mühlen</h3>
+                <blockquote class="blockquote">
+                    <p>Eine Mühle besteht aus drei Steinen gleicher Farbe in einer durchgehenden Linie.</p>
+                </blockquote>
+                <p>Beispiel: <code>Stein1 - Stein2 - Stein3</code></p>
+            </article>
+
+            <article aria-labelledby="steine-heading">
+                <h3 id="steine-heading" class="text-info mt-3">Steine Entfernen</h3>
+                <p>Wenn eine Mühle gebildet wird, darf ein beliebiger gegnerischer Stein entfernt werden, außer dieser ist Teil einer eigenen Mühle und es gibt andere Steine, die nicht in einer Mühle sind.</p>
+            </article>
+
+            <article aria-labelledby="special-heading">
+                <h3 id="special-heading" class="text-info mt-3">Spezielle Situationen</h3>
+                <ul class="list-group" aria-label="Liste der speziellen Situationen">
+                    <li class="list-group-item">Ein Spieler darf keine eigenen Steine entfernen.</li>
+                    <li class="list-group-item">Es ist nicht erlaubt, die gleiche Mühle durch Rückkehr zum vorherigen Zustand mehrfach zu verwenden, um mehrere Steine zu entfernen.</li>
+                </ul>
+            </article>
+
+            <article aria-labelledby="game-end-heading">
+                <h3 id="game-end-heading" class="text-info mt-3">Spielende</h3>
+                <ol class="list-group list-group-numbered" aria-label="Spielendekriterien">
+                    <li class="list-group-item">Ein Spieler hat weniger als drei Steine.</li>
+                    <li class="list-group-item">Ein Spieler kann keinen gültigen Zug mehr machen.</li>
+                </ol>
+            </article>
         </section>
 
-        <section class="mt-4">
-            <h2 class="text-primary">Spielstrategien</h2>
+        <!-- Spielstrategien -->
+        <section aria-labelledby="strategies-heading" class="mt-4">
+            <h2 id="strategies-heading" class="text-primary">Spielstrategien</h2>
             <p>Um erfolgreich zu sein, sollte ein Spieler versuchen, mehrere Mühlen gleichzeitig zu bauen und den Gegner daran zu hindern, Mühlen zu bilden. Das Blockieren der Züge des Gegners kann ebenfalls eine erfolgreiche Strategie sein.</p>
         </section>
 
-        <footer class="text-center mt-5">
-            <p>© Muhammed Ergül. Alle Rechte vorbehalten.</p>
+        <!-- Footer -->
+        <footer aria-labelledby="footer-heading" class="text-center mt-5">
+            <p id="footer-heading">© Muhammed Ergül. Alle Rechte vorbehalten.</p>
         </footer>
-    </div>
+    </main>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 </body>
 </html>
