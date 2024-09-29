@@ -50,10 +50,8 @@ class MuehleGame {
         // Handle incoming messages on subscribed channels
         this.redisSubscriber.subscribe('gameUpdates', (message) => {
             const parsedMessage = JSON.parse(message);
-            // Notify WebSocket clients with the message
-            if (this.multiplayer) {
-                this.multiplayer.broadcastMessage(parsedMessage.gameId, parsedMessage.message);
-            }
+
+            this.multiplayer.notifyClients(parsedMessage.gameId, parsedMessage.message);
         });
 
         this.app.use(express.json());
@@ -87,11 +85,8 @@ class MuehleGame {
 
     async notifyClients(gameId, message) {
         if (this.multiplayer) {
-            this.multiplayer.notifyClients(gameId, message);  // WebSocket-Benachrichtigung verwenden
+            await this.redisClient.publish('gameUpdates', JSON.stringify({ gameId, message }));
         }
-
-        // Publish message to Redis Pub/Sub
-        await this.redisClient.publish('gameUpdates', JSON.stringify({ gameId, message }));
     }
 
     async startMultiplayerGame(req, res) {

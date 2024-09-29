@@ -56,10 +56,6 @@ class Multiplayer {
             this.io.to(gameId).emit('updateBoard', { gameId, message });
         }
     }
-
-    broadcastMessage(gameId, message) {
-        this.io.to(gameId).emit('updateBoard', { gameId, message });  // Broadcast message to all clients
-    }
 }
 
 module.exports = Multiplayer;
