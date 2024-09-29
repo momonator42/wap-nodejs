@@ -86,11 +86,6 @@ class MuehleGame {
     }
 
     async notifyClients(gameId, message) {
-        if (this.multiplayer) {
-            this.multiplayer.notifyClients(gameId, message);  // WebSocket-Benachrichtigung verwenden
-        }
-
-        // Publish message to Redis Pub/Sub
         await this.redisClient.publish('gameUpdates', JSON.stringify({ gameId, message }));
     }
 
