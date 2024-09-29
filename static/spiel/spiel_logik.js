@@ -23,6 +23,11 @@ class Game {
     bindEvents() {
         document.querySelectorAll(".circle").forEach(circle => {
             circle.addEventListener("click", (event) => this.handleCircleClick(event));
+            circle.addEventListener("keydown", (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    this.handleCircleClick(event);
+                }
+            });
         });
         document.querySelector("#new-game-btn").addEventListener("click", (event) => this.handleNewGameClick(event));
 
