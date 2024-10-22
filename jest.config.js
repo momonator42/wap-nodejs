@@ -14,9 +14,12 @@ module.exports = {
     '.*\\.(vue)$': 'vue-jest'
   },
   collectCoverage: true,
+  coverageDirectory: 'coverage', // Ordner, in dem die Berichte gespeichert werden
+  coverageReporters: ['html', 'text', 'lcov'], // 'html' für den HTML-Bericht
   collectCoverageFrom: [
-    '<rootDir>/components/**/*.vue',
-    '<rootDir>/pages/**/*.vue'
+    //'<rootDir>/components/**/*.vue',
+    //'<rootDir>/pages/**/*.vue'
+    '<rootDir>/serverMiddleware/**/*.js'
   ],
-  testEnvironment: 'jsdom'
+  testEnvironment: 'node'
 }
