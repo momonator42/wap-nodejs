@@ -10,6 +10,7 @@ const Multiplayer = require("./multiplayer");  // Importiere die Multiplayer-Kla
 class MuehleGame {
     constructor() {
         this.redisClient;
+        this.redisSubscriber;
         this.app = express();
         this.server = null;
         this.multiplayer = null;  // WebSocket-Handling
@@ -47,6 +48,12 @@ class MuehleGame {
         this.redisClient.connect();
         this.redisSubscriber.connect();
 
+        this.sessionStore = new RedisStore({
+            client: this.redisClient,
+            prefix: "session:",
+            ttl: 300
+        });
+
         // Handle incoming messages on subscribed channels
         this.redisSubscriber.subscribe('gameUpdates', (message) => {
             const parsedMessage = JSON.parse(message);
@@ -57,11 +64,7 @@ class MuehleGame {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(session({
-            store: new RedisStore({
-                client: this.redisClient,
-                prefix: "session:",
-                ttl: 300,
-            }),
+            store: this.sessionStore,
             secret: 'keyboard cat',
             cookie: { maxAge: 300000 },
             resave: true,
@@ -77,7 +80,88 @@ class MuehleGame {
         this.app.post("/api/startMultiplayer", (req, res) => this.startMultiplayerGame(req, res));
         this.app.post("/api/joinMultiplayer", (req, res) => this.joinMultiplayerGame(req, res));
         this.app.post("/api/exitMultiplayer", (req, res) => this.exitMultiplayer(req, res));
+        this.app.post("/webhook/redis", (req, res) => this.updateRedisUrl(req, res));
     }
+
+    async updateRedisUrl(req, res) {
+        try {
+            console.log("Webhook triggered for release.");
+
+            const HEROKU_API_TOKEN = process.env.HEROKU_API_TOKEN;
+            const TARGET_APP_NAME = "wap-persistence";
+
+            if (!HEROKU_API_TOKEN) {
+                throw new Error("Heroku API token is missing in the environment.");
+            }
+
+            const fetch = require("node-fetch");
+
+            const response = await fetch(
+                `https://api.heroku.com/apps/${TARGET_APP_NAME}/config-vars`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${HEROKU_API_TOKEN}`,
+                        Accept: "application/vnd.heroku+json; version=3",
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch REDIS_URL: ${response.statusText}`);
+            }
+
+            const configVars = await response.json();
+            const redisUrl = configVars.REDIS_URL;
+
+            if (!redisUrl) {
+                throw new Error("REDIS_URL is not defined in the target app.");
+            }
+
+            console.log(`Fetched updated Redis URL: ${redisUrl}`);
+    
+            if (this.redisClient && this.redisClient.isOpen) {
+                await this.redisClient.disconnect();
+            }
+            if (this.redisSubscriber && this.redisSubscriber.isOpen) {
+                await this.redisSubscriber.disconnect();
+            }
+    
+            this.redisClient = createClient({
+                url: redisUrl,
+                socket: {
+                    tls: true,
+                    rejectUnauthorized: false
+                }
+            });
+    
+            this.redisSubscriber = createClient({
+                url: redisUrl,
+                socket: {
+                    tls: true,
+                    rejectUnauthorized: false
+                }
+            });
+    
+            this.redisClient.on("error", (err) => console.error("Redis Client Error", err));
+            this.redisSubscriber.on("error", (err) => console.error("Redis Subscriber Error", err));
+    
+            await this.redisClient.connect();
+            await this.redisSubscriber.connect();
+    
+            console.log("Redis clients updated successfully!");
+
+            this.sessionStore.client = this.redisClient;
+    
+            res.status(200).json({ message: "Redis URL updated and clients reconnected successfully" });
+        } catch (err) {
+            console.error("Error updating Redis URL:", err);
+            this.redisClient = null;
+            this.redisSubscriber = null;
+            res.status(500).json({ error: "Failed to update Redis URL" });
+        }
+    }
+    
 
     setupWebSocketServer(server) {
         this.multiplayer = new Multiplayer(server);
