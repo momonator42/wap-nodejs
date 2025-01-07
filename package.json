@@ -16,6 +16,7 @@
     "axios": "^1.7.5",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "child_process": "^1.0.2",
     "connect-redis": "^7.1.1",
     "core-js": "^3.25.3",
     "cypress": "^13.14.1",

@@ -85,13 +85,40 @@ class MuehleGame {
 
     async updateRedisUrl(req, res) {
         try {
-            const { REDIS_URL } = req.body;
-    
-            if (!REDIS_URL) {
-                return res.status(400).json({ error: "REDIS_URL is missing in the request" });
+            console.log("Webhook triggered for release.");
+
+            const HEROKU_API_TOKEN = process.env.HEROKU_API_TOKEN;
+            const TARGET_APP_NAME = "wap-persistence";
+
+            if (!HEROKU_API_TOKEN) {
+                throw new Error("Heroku API token is missing in the environment.");
             }
-    
-            console.log(`Updating Redis URL to: ${REDIS_URL}`);
+
+            const fetch = require("node-fetch");
+
+            const response = await fetch(
+                `https://api.heroku.com/apps/${TARGET_APP_NAME}/config-vars`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${HEROKU_API_TOKEN}`,
+                        Accept: "application/vnd.heroku+json; version=3",
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch REDIS_URL: ${response.statusText}`);
+            }
+
+            const configVars = await response.json();
+            const redisUrl = configVars.REDIS_URL;
+
+            if (!redisUrl) {
+                throw new Error("REDIS_URL is not defined in the target app.");
+            }
+
+            console.log(`Fetched updated Redis URL: ${redisUrl}`);
     
             if (this.redisClient && this.redisClient.isOpen) {
                 await this.redisClient.disconnect();
@@ -101,7 +128,7 @@ class MuehleGame {
             }
     
             this.redisClient = createClient({
-                url: REDIS_URL,
+                url: redisUrl,
                 socket: {
                     tls: true,
                     rejectUnauthorized: false
@@ -109,7 +136,7 @@ class MuehleGame {
             });
     
             this.redisSubscriber = createClient({
-                url: REDIS_URL,
+                url: redisUrl,
                 socket: {
                     tls: true,
                     rejectUnauthorized: false
