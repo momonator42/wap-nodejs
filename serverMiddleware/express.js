@@ -10,6 +10,7 @@ const Multiplayer = require("./multiplayer");  // Importiere die Multiplayer-Kla
 class MuehleGame {
     constructor() {
         this.redisClient;
+        this.redisSubscriber;
         this.app = express();
         this.server = null;
         this.multiplayer = null;  // WebSocket-Handling
@@ -47,6 +48,12 @@ class MuehleGame {
         this.redisClient.connect();
         this.redisSubscriber.connect();
 
+        this.sessionStore = new RedisStore({
+            client: this.redisClient,
+            prefix: "session:",
+            ttl: 300
+        });
+
         // Handle incoming messages on subscribed channels
         this.redisSubscriber.subscribe('gameUpdates', (message) => {
             const parsedMessage = JSON.parse(message);
@@ -57,11 +64,7 @@ class MuehleGame {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(session({
-            store: new RedisStore({
-                client: this.redisClient,
-                prefix: "session:",
-                ttl: 300,
-            }),
+            store: this.sessionStore,
             secret: 'keyboard cat',
             cookie: { maxAge: 300000 },
             resave: true,
@@ -77,7 +80,61 @@ class MuehleGame {
         this.app.post("/api/startMultiplayer", (req, res) => this.startMultiplayerGame(req, res));
         this.app.post("/api/joinMultiplayer", (req, res) => this.joinMultiplayerGame(req, res));
         this.app.post("/api/exitMultiplayer", (req, res) => this.exitMultiplayer(req, res));
+        this.app.post("/webhook/redis", (req, res) => this.updateRedisUrl(req, res));
     }
+
+    async updateRedisUrl(req, res) {
+        try {
+            const { REDIS_URL } = req.body;
+    
+            if (!REDIS_URL) {
+                return res.status(400).json({ error: "REDIS_URL is missing in the request" });
+            }
+    
+            console.log(`Updating Redis URL to: ${REDIS_URL}`);
+    
+            if (this.redisClient && this.redisClient.isOpen) {
+                await this.redisClient.disconnect();
+            }
+            if (this.redisSubscriber && this.redisSubscriber.isOpen) {
+                await this.redisSubscriber.disconnect();
+            }
+    
+            this.redisClient = createClient({
+                url: REDIS_URL,
+                socket: {
+                    tls: true,
+                    rejectUnauthorized: false
+                }
+            });
+    
+            this.redisSubscriber = createClient({
+                url: REDIS_URL,
+                socket: {
+                    tls: true,
+                    rejectUnauthorized: false
+                }
+            });
+    
+            this.redisClient.on("error", (err) => console.error("Redis Client Error", err));
+            this.redisSubscriber.on("error", (err) => console.error("Redis Subscriber Error", err));
+    
+            await this.redisClient.connect();
+            await this.redisSubscriber.connect();
+    
+            console.log("Redis clients updated successfully!");
+
+            this.sessionStore.client = this.redisClient;
+    
+            res.status(200).json({ message: "Redis URL updated and clients reconnected successfully" });
+        } catch (err) {
+            console.error("Error updating Redis URL:", err);
+            this.redisClient = null;
+            this.redisSubscriber = null;
+            res.status(500).json({ error: "Failed to update Redis URL" });
+        }
+    }
+    
 
     setupWebSocketServer(server) {
         this.multiplayer = new Multiplayer(server);
