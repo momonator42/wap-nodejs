@@ -75,9 +75,9 @@ heroku container:release web --app <app-name>
 
 ### 3. set the same environment variables in heroku app configuration as before 
 ```bash
-heroku config:set WAP_MILL=<your-wap-mill-host> -a wap-webserver
-heroku config:set JWT_SECRET=<your-password> -a wap-webserver
-heroku config:set REDIS_TLS_URL=<your-REDIS-Host> -a wap-webserver
+heroku config:set WAP_MILL=<your-wap-mill-host> -a <app-name>
+heroku config:set JWT_SECRET=<your-password> -a <app-name>
+heroku config:set REDIS_TLS_URL=<your-REDIS-Host> -a <app-name>
 ```
 
 ## Set a webhook between redis and wap-webserver
@@ -92,7 +92,7 @@ heroku auth:token
 
 ### 2. copy the generated token and set it as a environemt variable
 ```bash
-heroku config:set HEROKU_API_TOKEN=<your-api-token> -a wap-webserver
+heroku config:set HEROKU_API_TOKEN=<your-api-token> -a <app-name>
 ```
 
 ### 3. set the webhook for your redis app
