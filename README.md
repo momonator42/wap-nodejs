@@ -68,17 +68,18 @@ npm run start
 heroku container:push web --a <app-name> 
 ```
 
-### 2. release it and enjoy
-```bash
-heroku container:release web --app <app-name>
-```
-
-### 3. set the same environment variables in heroku app configuration as before 
+### 2. set the same environment variables in heroku app configuration as before 
 ```bash
 heroku config:set WAP_MILL=<your-wap-mill-host> -a <app-name>
 heroku config:set JWT_SECRET=<your-password> -a <app-name>
 heroku config:set REDIS_TLS_URL=<your-REDIS-Host> -a <app-name>
 ```
+
+### 3. release it and enjoy
+```bash
+heroku container:release web --app <app-name>
+```
+
 
 ## Set a webhook between redis and wap-webserver
 
