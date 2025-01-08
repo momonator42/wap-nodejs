@@ -1,69 +1,106 @@
-# wap-webserver
+# WAP-Webserver
 
-## Build Setup
+## Overview
+The **WAP-Webserver** is a microservice backend for the game *Mühle (Nine Men's Morris)*. It manages state using Redis and provides RESTful APIs to handle game logic, multiplayer interactions, and player actions.
 
+This service is written in **Node.js** and designed to be lightweight and scalable.
+
+---
+
+## Features
+- **Stateful Game Management**: Uses Redis for efficient state handling.
+- **RESTful API**: Provides endpoints for creating games, making moves, and managing players.
+- **Multiplayer Support**: Handles real-time game interactions for multiple players.
+- **Docker Support**: Easily deployable via Docker.
+
+---
+
+## Requirements
+- **Heroku CLI** (for deployment)
+- **Node.js** (v16 or higher)
+- **Redis** (an add-on on heroku)
+- **Docker** (for containerized deployment)
+
+---
+
+## Setup
+
+### 1. Clone the Repository
 ```bash
-# install dependencies
-$ npm install
-
-# serve with hot reload at localhost:3000
-$ npm run dev
-
-# build for production and launch server
-$ npm run build
-$ npm run start
-
-# generate static project
-$ npm run generate
+git clone https://github.com/momonator42/wap-webserver.git
 ```
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
+### 2. Navigate into the Project Directory
+```bash
+cd wap-webserver
+```
 
-## Special Directories
+### 3. Install Dependencies
+```bash
+npm install
+```
 
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
+### 3. Build the server
+```bash
+npm run build
+```
 
-### `assets`
+### 4. Set an environment variable for the [wap-mill](https://github.com/momonator42/wap-mill)
+```bash
+$env:WAP_MILL = "<your-wap-mill-host>"
+$env:JWT_SECRET = "<your-password>"
+```
 
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
+### 5. Set an environment variable for redis
+```bash
+$env:REDIS_TLS_URL= "<your-REDIS-Host>"
+```
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
+### 6. Start the server
+```bash
+npm run start
+```
 
-### `components`
+## Deployment
 
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
+### 1. push in your heroku (docker image will be built automatically)
+```bash
+heroku container:push web --a <app-name> 
+```
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
+### 2. release it and enjoy
+```bash
+heroku container:release web --app <app-name>
+```
 
-### `layouts`
+### 3. set the same environment variables in heroku app configuration as before 
+```bash
+heroku config:set WAP_MILL=<your-wap-mill-host> -a wap-webserver
+heroku config:set JWT_SECRET=<your-password> -a wap-webserver
+heroku config:set REDIS_TLS_URL=<your-REDIS-Host> -a wap-webserver
+```
 
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
+## Set a webhook between redis and wap-webserver
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
+### 1. generate a heroku token
+```bash
+heroku login
+```
+```bash
+heroku auth:token
+```
+
+### 2. copy the generated token and set it as a environemt variable
+```bash
+heroku config:set HEROKU_API_TOKEN=<your-api-token> -a wap-webserver
+```
+
+### 3. set the webhook for your redis app
+```bash
+heroku webhooks:add -i api:release -l notify -u <your-wap-webserver-host>/webhook/redis -a <your-redis-app>
+```
 
 
-### `pages`
 
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
 
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
