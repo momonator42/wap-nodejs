@@ -91,7 +91,7 @@ heroku login
 heroku auth:token
 ```
 
-### 2. copy the generated token and set it as a environemt variable
+### 2. copy the generated token and set it as a environment variable
 ```bash
 heroku config:set HEROKU_API_TOKEN=<your-api-token> -a <app-name>
 ```
